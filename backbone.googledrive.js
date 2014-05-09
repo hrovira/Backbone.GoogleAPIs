@@ -11,6 +11,8 @@ define("backbone.googledrive", ["jquery", "underscore", "backbone"],
         var BasicModel = Backbone.Model.extend({
             "initialize": function() {
                 Backbone.Model.prototype.initialize.call(this);
+
+                _.bindAll(this, "url", "fetch", "insert", "patch", "update", "delete");
             },
             "url": function() {},
             "fetch": function(options) {},
@@ -23,6 +25,8 @@ define("backbone.googledrive", ["jquery", "underscore", "backbone"],
         var ListModel = Backbone.Model.extend({
             "initialize": function() {
                 Backbone.Model.prototype.initialize.call(this);
+
+                _.bindAll(this, "url", "fetch", "list");
             },
             "url": function() {},
             "fetch": function(options) {},
@@ -35,6 +39,8 @@ define("backbone.googledrive", ["jquery", "underscore", "backbone"],
             },
             "initialize": function() {
                 ListModel.prototype.initialize.call(this);
+
+                _.bindAll(this, "list");
             },
             "list": function(options) {}
         });
@@ -42,6 +48,11 @@ define("backbone.googledrive", ["jquery", "underscore", "backbone"],
         var FileModel = BasicModel.extend({
             "initialize": function() {
                 BasicModel.prototype.initialize.call(this);
+
+                _.bindAll(this, "url", "copy", "insert", "update");
+                _.bindAll(this, "touch", "trash", "untrash");
+                _.bindAll(this, "childReferences", "parentReferences");
+                _.bindAll(this, "permissions", "revisions", "comments");
             },
             "url": function() {},
             "copy": function(new_copy, options) {},
@@ -68,6 +79,7 @@ define("backbone.googledrive", ["jquery", "underscore", "backbone"],
 
             "initialize": function() {
                 FileModel.prototype.initialize.call(this);
+
                 this.files = new ListModel({ "kind": "drive#fileList" })
             }
         });
