@@ -1,0 +1,28 @@
+{
+    "name": "backbone.googledrive",
+    "version": "0.0.1",
+    "homepage": "https://github.com/hrovira/backbone.googledrive",
+    "description": "Backbone.js Models for Google Drive API v2",
+    "authors": [
+        { "name": "Hector Rovira", "homepage": "https://github.com/hrovira" }
+    ],
+    "keywords": [
+        "backbone", "model", "google", "drive"
+    ],
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/hrovira/backbone.googledrive.git"
+    },
+    "main": "backbone.googledrive.js",
+    "license": "MIT",
+    "dependencies": {
+        "requirejs": "~2.1.5",
+        "jquery": "~2.0.2",
+        "underscore": "~1.4.4",
+        "backbone": "~1.0.0"
+    },
+    "ignore": [
+        "bower_components"
+    ],
+    "resolutions": {}
+}
