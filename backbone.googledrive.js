@@ -35,14 +35,25 @@ define("backbone.googledrive", ["jquery", "underscore", "backbone"],
 
         var ChangeListModel = ListModel.extend({
             "defaults": {
-                "kind": "drive#changeList"
+                "kind": "drive#changeList",
+                "active": true
             },
             "initialize": function() {
                 ListModel.prototype.initialize.call(this);
 
                 _.bindAll(this, "list");
             },
-            "list": function(options) {}
+            "list": function(options) {},
+
+            "poll": function(options) {
+                options = options || {};
+                this.on("list", function() {
+                    _.delay(this.list, options["delayInMillis"] || 5000);
+                }, this);
+            },
+            "unpoll": function() {
+                this.stopListening("list");
+            }
         });
 
         var FileModel = BasicModel.extend({

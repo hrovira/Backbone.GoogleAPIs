@@ -87,6 +87,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | initialize     |                       |         |
 | url            |                       |         |
 | list           |                       |         |
+| poll           |                       | delayInMillis |
 
 #### File (extends Backbone.GoogleDrive.Model)
   * Defaults _kind_ to _"drive#file"_
@@ -139,6 +140,9 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
     var model = new Backbone.GoogleDrive.Model({
         "kind": "drive#about"
     });
+    model.on("change", function() {
+        $(".about-container").html(HtmlTemplate(model.toJSON()));
+    });
     model.fetch();
 ```
 
@@ -149,6 +153,9 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
     });
     model.on("list", function() {
         var apps = model.get("items");
+        _.each(apps, function(app) {
+            $("ul.apps-list").append(LineItemLinkTemplate(app));
+        });
     });
     model.list();
 ```
@@ -177,14 +184,26 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ### List Files in a Folder
 ```
-    var model = new Backbone.GoogleDrive.Folder({
+    var folder = new Backbone.GoogleDrive.Folder({
+        "id": "generated_by_google, as seen in URLs"
     });
-    model.files.list();
+
+    var files = folder.files();
+    files.on("list", function() {
+        _.each(files.get("items"), function(file) {
+            $("ul.file-list").append(LineItemLinkTemplate(file));
+        });
+    });
+    files.list();
 ```
 
 ### Monitor Changes
 ```
-    var model = new Backbone.GoogleDrive.ChangeList({
+    var model = new Backbone.GoogleDrive.ChangeList({});
+    model.poll({ "delayInMillis": 5000 });
+    model.on("change", function() {
+        _.each(model.get("items"), function(item) {
+            // trigger changes by item or item.file attributes
+        });
     });
-    model.list();
 ```
