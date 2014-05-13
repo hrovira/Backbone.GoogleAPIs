@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Backbone.GoogleDrive | Test Console</title>
+
+    <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+    <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
+
+    <script type="text/javascript" src="./backbone.googledrive.js"></script>
+
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css"/>
+</head>
+<body>
+<div class="jumbotron">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <h4>Backbone.GoogleDrive</h4>
+                <h5>Test Console</h5>
+
+                <p><a class="btn btn-primary btn-sm" role="button"
+                      href="https://github.com/hrovira/Backbone.GoogleDrive" target="_blank">API documentation</a></p>
+
+                <p><a href="#" onclick="return false;" class="btn" role="button">
+                    <img src="https://www.google.com/images/icons/ui/gprofile_button-32.png"> Sign in to execute
+                    tests</a>
+                </p>
+
+                <p><a href="#" class="signout-link hide" onclick="return false;">
+                    <img class="profile_pic" style="width:40px;" src=""> Sign Out</a></p>
+            </div>
+            <div class="col-md-8">
+                <h5>Javascript Dependencies</h5>
+                <ul class="nav nav-list deps-container">
+                </ul>
+            </div>
+        </div>
+
+        <a href="https://github.com/hrovira/Backbone.GoogleDrive" target="_blank">
+            <img style="position: absolute; top: 0; right: 0; border: 0;"
+                 src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67"
+                 alt="Fork me on GitHub"
+                 data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png">
+        </a>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="nav nav-list">
+                <li class="nav-header">Example Operations</li>
+                <li><a href="#" onclick="return false;" class="about">About</a></li>
+                <li><a href="#" onclick="return false;" class="list-apps">Apps</a></li>
+                <li><a href="#" onclick="return false;" class="list-folders">List Folders</a></li>
+                <li><a href="#" onclick="return false;" class="list-changes">Poll ChangeList</a></li>
+                <li class="divider">&nbsp;</li>
+                <li class="nav-header">File Operations</li>
+                <li><a href="#" onclick="return false;" class="file-insert">Insert File</a></li>
+                <li><a href="#" onclick="return false;" class="file-fetch">Fetch File</a></li>
+                <li><a href="#" onclick="return false;" class="file-update">Update File (label)</a></li>
+                <li><a href="#" onclick="return false;" class="file-trash">Trash File</a></li>
+            </ul>
+        </div>
+        <div class="col-md-8">
+            <div class="panel panel-primary">
+                <div class="panel-body">
+                    <h5>Javascript</h5>
+                    <pre class="code-container"><--- Select one of the example operations to begin</pre>
+                    <h5>Model Contents after HTTP Response</h5>
+                    <pre class="json-container"></pre>
+                    <h5>Errors</h5>
+                    <pre class="error-container"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var FileId;
+
+    _.defer(function () {
+        _.each($("script"), function (script) {
+            if (script && _.has(script, "src")) {
+                $(".deps-container").append("<li>" + script["src"] + "</li>");
+            }
+        });
+    });
+
+    var displayJson = function () {
+        $(".json-container").html(JSON.stringify(this.toJSON(), undefined, 2));
+    };
+
+    var displayError = function (a, e) {
+        $(".error-container").html(a + ":" + e);
+    };
+
+    var fetchAbout = function () {
+        var model = new Backbone.GoogleDrive.Model({ "kind": "drive#about" });
+        model.on("change", displayJson, model);
+        model.on("error", displayError);
+        model.fetch();
+    };
+
+    var pollChangeList = function () {
+        var model = new Backbone.GoogleDrive.ChangeList();
+        model.on("change", displayJson, model);
+        model.on("error", displayError);
+        model.poll();
+    };
+
+    var listApps = function () {
+        var model = new Backbone.GoogleDrive.List({ "kind": "drive#appList" });
+        model.on("change", displayJson, model);
+        model.on("error", displayError);
+        model.list();
+    };
+
+    var listFolders = function () {
+        var model = new Backbone.GoogleDrive.List({ "kind": "drive#fileList" });
+        model.on("change", displayJson, model);
+        model.on("error", displayError);
+        model.list({ "q": "mimeType='application/vnd.google-apps.folder'" });
+    };
+
+    var fileInsert = function () {
+        var model = new Backbone.GoogleDrive.File({
+            "title": "Backbone.GoogleDrive | Test"
+        });
+        model.on("change:id", function () {
+            FileId = this.get("id");
+        });
+        model.on("change", displayJson, model);
+        model.on("error", displayError);
+        model.insert();
+    };
+
+    var fileFetch = function () {
+        if (!FileId) return $(".error-container").html("Insert File First");
+
+        var model = new Backbone.GoogleDrive.File({ "id": FileId });
+        model.on("change", displayJson, model);
+        model.on("error", displayError);
+        model.fetch();
+    };
+
+    var fileUpdate = function () {
+        if (!FileId) return $(".error-container").html("Insert File First");
+
+        var model = new Backbone.GoogleDrive.File();
+        model.set("id", FileId);
+        model.set("title", "Backbone.GoogleDrive | Test | New Title");
+        model.on("change", displayJson, model);
+        model.on("error", displayError);
+        model.update();
+    };
+
+    var fileTrash = function () {
+        if (!FileId) return $(".error-container").html("Insert File First");
+
+        var model = new Backbone.GoogleDrive.File({ "id": FileId });
+        model.on("change", displayJson, model);
+        model.on("error", displayError);
+        model.trash();
+    };
+
+    var displayThenExecute = function (targetFn) {
+        return function () {
+            _.defer(targetFn);
+
+            $(".json-container").empty();
+            $(".error-container").empty();
+
+            var strFn = "" + targetFn;
+            var parts = [];
+
+            if (strFn.indexOf("displayError") >= 0) parts.push("var displayError = " + displayError + ";");
+            if (strFn.indexOf("displayJson") >= 0) parts.push("var displayJson = " + displayJson + ";");
+            if (strFn.indexOf("FileId") >= 0) parts.push("var FileId = \"" + (FileId || "") + "\";");
+            parts.push("" + strFn);
+            $(".code-container").html(parts.join("\n\n"));
+        };
+    };
+
+    $("a.about").on("click", displayThenExecute(fetchAbout));
+    $("a.list-apps").on("click", displayThenExecute(listApps));
+    $("a.list-folders").on("click", displayThenExecute(listFolders));
+    $("a.list-changes").on("click", displayThenExecute(pollChangeList));
+
+    $("a.file-insert").on("click", displayThenExecute(fileInsert));
+    $("a.file-fetch").on("click", displayThenExecute(fileFetch));
+    $("a.file-update").on("click", displayThenExecute(fileUpdate));
+    $("a.file-trash").on("click", displayThenExecute(fileTrash));
+</script>
+</body>
+</html>
