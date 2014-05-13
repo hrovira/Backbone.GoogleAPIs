@@ -1,5 +1,14 @@
-define("backbone.googledrive", ["jquery", "underscore", "backbone"],
-    function ($, _, Backbone) {
+(function(root, factory) {
+  if (typeof exports === "object" && root.require) {
+    module.exports = factory(require("jQuery"), require("underscore"), require("backbone"));
+  } else if (typeof define === "function" && define.amd) {
+    define([ "jQuery", "underscore", "backbone" ], function($, _, Backbone) {
+      return factory($ || root.$, _ || root._, Backbone || root.Backbone);
+    });
+  } else {
+    factory($, _, Backbone);
+  }
+})(this, function($, _, Backbone) {
         var local_model = {};
 
         var __is_kind = function (m, targetKind) {
