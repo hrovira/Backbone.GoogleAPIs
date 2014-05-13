@@ -12,8 +12,6 @@
             src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script type="text/javascript"
             src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
-    <script type="text/javascript"
-            src="http://cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
 
     <script type="text/javascript" src="./backbone.googledrive.js"></script>
 
@@ -219,10 +217,10 @@
             var strFn = "" + targetFn;
             var parts = [];
 
-            if (strFn.indexOf("displayError") >= 0) parts.push("var displayError = " + displayError + ";");
-            if (strFn.indexOf("displayJson") >= 0) parts.push("var displayJson = " + displayJson + ";");
             if (strFn.indexOf("FileId") >= 0) parts.push("var FileId = \"" + (FileId || "") + "\";");
             parts.push("" + strFn);
+            if (strFn.indexOf("displayJson") >= 0) parts.push("var displayJson = " + displayJson + ";");
+            if (strFn.indexOf("displayError") >= 0) parts.push("var displayError = " + displayError + ";");
             $(".code-container").html(parts.join("\n\n"));
         };
     };
