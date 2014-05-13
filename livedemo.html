@@ -18,6 +18,14 @@
     <script type="text/javascript" src="./backbone.googledrive.js"></script>
 
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css"/>
+
+    <script type="text/javascript" async="true" src="https://apis.google.com/js/client:plusone.js"></script>
+    <script type="text/javascript">
+        var signinCallback = function (json) {
+            if (json && json["status"] && json["status"]["signed_in"]) $("#signinButton").hide();
+            Backbone.GoogleDrive.AccessToken = json["access_token"];
+        };
+    </script>
 </head>
 <body>
 <div class="jumbotron">
@@ -30,13 +38,18 @@
                 <p><a class="btn btn-primary btn-sm" role="button"
                       href="https://github.com/hrovira/Backbone.GoogleDrive" target="_blank">API documentation</a></p>
 
-                <p><a href="#" onclick="return false;" class="btn" role="button">
-                    <img src="https://www.google.com/images/icons/ui/gprofile_button-32.png"> Sign in to execute
-                    tests</a>
+                <p>
+                    <span id="signinButton">
+                      <span
+                              class="g-signin"
+                              data-callback="signinCallback"
+                              data-clientid="735622011915-e988pa3i31rboijnurmmk5tsgv32v8me.apps.googleusercontent.com"
+                              data-cookiepolicy="single_host_origin"
+                              data-requestvisibleactions="http://schemas.google.com/AddActivity"
+                              data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile">
+                      </span>
+                    </span>
                 </p>
-
-                <p><a href="#" class="signout-link hide" onclick="return false;">
-                    <img class="profile_pic" style="width:40px;" src=""> Sign Out</a></p>
             </div>
             <div class="col-md-8">
                 <h5>Javascript Dependencies</h5>
@@ -78,7 +91,7 @@
                     <h5>Model Contents after HTTP Response</h5>
                     <pre class="json-container"></pre>
                     <h5>Errors</h5>
-                    <pre class="error-container"></pre>
+                    <div class="error-container well"></div>
                 </div>
             </div>
         </div>
@@ -99,8 +112,8 @@
         $(".json-container").html(JSON.stringify(this.toJSON(), undefined, 2));
     };
 
-    var displayError = function (a, e) {
-        $(".error-container").html(a + ":" + e);
+    var displayError = function (model, response) {
+        $(".error-container").html(response.responseText);
     };
 
     var fetchAbout = function () {

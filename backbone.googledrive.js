@@ -17,14 +17,60 @@
             return _.contains(_.flatten([targetKind]), m.get("kind"));
         };
 
+        var __base_url = function() {
+            return Backbone.GoogleDrive.BaseUrl;
+        };
+
+        var __oauth_headers = function() {
+            if (!_.isEmpty(Backbone.GoogleDrive.AccessToken)) {
+                return { "Authorization": "Bearer " + Backbone.GoogleDrive.AccessToken };
+            }
+            return {};
+        };
+
         var BasicModel = Backbone.Model.extend({
             "initialize": function() {
                 Backbone.Model.prototype.initialize.call(this);
 
                 _.bindAll(this, "url", "fetch", "insert", "patch", "update", "delete");
             },
-            "url": function() {},
-            "fetch": function(options) {},
+            "url": function() {
+                if (_.isEmpty(this.get("kind"))) return __base_url() + "/files";
+                if (__is_kind(this, "drive#about")) return __base_url() + "/about";
+
+                var id = this.get("id");
+                if (__is_kind(this, "drive#app")) return __base_url() + "/apps/" + id;
+                if (__is_kind(this, "drive#change")) return __base_url() + "/changes/" + id;
+
+                var baseUrl = __base_url() + "/files/" + this.get("fileId");
+                if (__is_kind(this, "drive#childReference")) return baseUrl + "/children/" + id;
+                if (__is_kind(this, "drive#parentReference")) return baseUrl + "/parents/" + id;
+                if (__is_kind(this, "drive#permission")) return baseUrl + "/permissions/" + id;
+                if (__is_kind(this, "drive#revision")) return baseUrl + "/revisions/" + id;
+                if (__is_kind(this, "drive#property")) {
+                    var propertyKey = this.get("propertyKey");
+                    return baseUrl + "/properties/" + propertyKey;
+                }
+
+                if (__is_kind(this, "drive#comment")) return baseUrl + "/comments/" + id;
+                if (__is_kind(this, "drive#commentReply")) {
+                    var cId = this.get("commentId");
+                    return baseUrl + "/comments/" + cId + "/replies/" + id;
+                }
+                return __base_url() + "/files";
+            },
+            "fetch": function(options) {
+                options = options || {};
+
+                var pkg = {
+                    "url": this.url(),
+                    "dataType": "json",
+                    "contentType": "application/json",
+                    "headers": _.extend({}, options["headers"], __oauth_headers())
+                };
+
+                return Backbone.Model.prototype.fetch.call(this, _.extend(pkg, options));
+            },
             "insert": function(options) {},
             "patch": function(options) {},
             "update": function(options) {},
@@ -110,7 +156,8 @@
             "List": ListModel,
             "ChangeList": ChangeListModel,
             "File": FileModel,
-            "Folder": FolderModel
+            "Folder": FolderModel,
+            "BaseUrl": "https://www.googleapis.com/drive/v2"
         };
 
         Backbone.GoogleDrive = gdrive_component;

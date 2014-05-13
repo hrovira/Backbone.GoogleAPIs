@@ -32,6 +32,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
   * Using a Client-Side Authorization Scheme
      * Supposes web client is using Google Drive Libraries that handles the OAUTH2 flow
      * https://developers.google.com/drive/web/auth/web-client
+     * https://developers.google.com/+/web/signin/add-button
      * perform OAUTH2 flows
      * Web-client code must provide request headers to this library
 
