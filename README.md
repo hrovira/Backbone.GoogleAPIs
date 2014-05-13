@@ -151,7 +151,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
     var model = new Backbone.GoogleDrive.List({
         "kind": "drive#appsList"
     });
-    model.on("list", function() {
+    model.on("change", function() {
         var apps = model.get("items");
         _.each(apps, function(app) {
             $("ul.apps-list").append(LineItemLinkTemplate(app));
@@ -189,7 +189,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
     });
 
     var files = folder.files();
-    files.on("list", function() {
+    files.on("change", function() {
         _.each(files.get("items"), function(file) {
             $("ul.file-list").append(LineItemLinkTemplate(file));
         });
