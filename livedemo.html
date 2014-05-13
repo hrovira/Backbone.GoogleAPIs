@@ -87,59 +87,64 @@
             <div class="panel panel-primary">
                 <div class="panel-body">
                     <h5>Javascript</h5>
-                    <pre class="code-container"><--- Select one of the example operations to begin</pre>
+                    <pre class="code-container pre-scrollable"><--- Select one of the example operations to begin</pre>
                     <h5>Model Contents after HTTP Response</h5>
-                    <pre class="json-container"></pre>
+                    <pre class="json-container pre-scrollable"></pre>
                     <h5>Errors</h5>
-                    <div class="error-container well"></div>
+                    <div class="error-container well pre-scrollable"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <script type="text/javascript">
+    // shared among File operations after insert
     var FileId;
 
+    // displays JS dependencies
     _.defer(function () {
         _.each($("script"), function (script) {
             if (script && _.has(script, "src")) {
+                if (script["src"].indexOf("chrome-extension") >= 0) return;
                 $(".deps-container").append("<li>" + script["src"] + "</li>");
             }
         });
     });
 
-    var displayJson = function () {
-        $(".json-container").html(JSON.stringify(this.toJSON(), undefined, 2));
+    // support functions
+    var displayJson = function (m) {
+        $(".json-container").html(JSON.stringify(m.toJSON(), undefined, 2));
     };
 
     var displayError = function (model, response) {
         $(".error-container").html(response.responseText);
     };
 
+    // example functions
     var fetchAbout = function () {
         var model = new Backbone.GoogleDrive.Model({ "kind": "drive#about" });
-        model.on("change", displayJson, model);
+        model.on("change", displayJson);
         model.on("error", displayError);
         model.fetch();
     };
 
     var pollChangeList = function () {
         var model = new Backbone.GoogleDrive.ChangeList();
-        model.on("change", displayJson, model);
+        model.on("change", displayJson);
         model.on("error", displayError);
         model.poll();
     };
 
     var listApps = function () {
         var model = new Backbone.GoogleDrive.List({ "kind": "drive#appList" });
-        model.on("change", displayJson, model);
+        model.on("change", displayJson);
         model.on("error", displayError);
         model.list();
     };
 
     var listFolders = function () {
         var model = new Backbone.GoogleDrive.List({ "kind": "drive#fileList" });
-        model.on("change", displayJson, model);
+        model.on("change", displayJson);
         model.on("error", displayError);
         model.list({ "q": "mimeType='application/vnd.google-apps.folder'" });
     };
@@ -148,10 +153,10 @@
         var model = new Backbone.GoogleDrive.File({
             "title": "Backbone.GoogleDrive | Test"
         });
-        model.on("change:id", function () {
-            FileId = this.get("id");
+        model.on("change:id", function (m) {
+            FileId = m.get("id");
         });
-        model.on("change", displayJson, model);
+        model.on("change", displayJson);
         model.on("error", displayError);
         model.insert();
     };
@@ -160,7 +165,7 @@
         if (!FileId) return $(".error-container").html("Insert File First");
 
         var model = new Backbone.GoogleDrive.File({ "id": FileId });
-        model.on("change", displayJson, model);
+        model.on("change", displayJson);
         model.on("error", displayError);
         model.fetch();
     };
@@ -171,7 +176,7 @@
         var model = new Backbone.GoogleDrive.File();
         model.set("id", FileId);
         model.set("title", "Backbone.GoogleDrive | Test | New Title");
-        model.on("change", displayJson, model);
+        model.on("change", displayJson);
         model.on("error", displayError);
         model.update();
     };
@@ -180,11 +185,12 @@
         if (!FileId) return $(".error-container").html("Insert File First");
 
         var model = new Backbone.GoogleDrive.File({ "id": FileId });
-        model.on("change", displayJson, model);
+        model.on("change", displayJson);
         model.on("error", displayError);
         model.trash();
     };
 
+    // bootstraps example functions
     var displayThenExecute = function (targetFn) {
         return function () {
             _.defer(targetFn);
@@ -203,6 +209,7 @@
         };
     };
 
+    // activate event listeners
     $("a.about").on("click", displayThenExecute(fetchAbout));
     $("a.list-apps").on("click", displayThenExecute(listApps));
     $("a.list-folders").on("click", displayThenExecute(listFolders));
