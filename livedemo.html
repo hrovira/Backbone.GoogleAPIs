@@ -18,12 +18,13 @@
     <script type="text/javascript" src="./backbone.googledrive.js"></script>
 
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css"/>
-
     <script type="text/javascript" async="true" src="https://apis.google.com/js/client:plusone.js"></script>
     <script type="text/javascript">
         var signinCallback = function (json) {
             if (json && json["status"] && json["status"]["signed_in"]) $("#signinButton").hide();
             Backbone.GoogleDrive.AccessToken = json["access_token"];
+
+            _.defer(fetchUserInfo, true);
         };
     </script>
 </head>
@@ -40,15 +41,18 @@
 
                 <p>
                     <span id="signinButton">
-                      <span
-                              class="g-signin"
+                        <span class="g-signin"
                               data-callback="signinCallback"
                               data-clientid="735622011915-e988pa3i31rboijnurmmk5tsgv32v8me.apps.googleusercontent.com"
                               data-cookiepolicy="single_host_origin"
                               data-requestvisibleactions="http://schemas.google.com/AddActivity"
                               data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile">
-                      </span>
+                        </span>
                     </span>
+                    <div class="signedIn">
+                        <img src="" style="width: 50px;"/>
+                        <h5></h5>
+                    </div>
                 </p>
             </div>
             <div class="col-md-8">
@@ -75,6 +79,7 @@
                 <li><a href="#" onclick="return false;" class="list-apps">Apps</a></li>
                 <li><a href="#" onclick="return false;" class="list-folders">List Folders</a></li>
                 <li><a href="#" onclick="return false;" class="list-changes">Poll ChangeList</a></li>
+                <li><a href="#" onclick="return false;" class="user-info">Get User Info</a></li>
                 <li class="divider">&nbsp;</li>
                 <li class="nav-header">File Operations</li>
                 <li><a href="#" onclick="return false;" class="file-insert">Insert File</a></li>
@@ -121,6 +126,19 @@
     };
 
     // example functions
+    var fetchUserInfo = function (onStartup) {
+        var model = new Backbone.GoogleDrive.Model({});
+        if (!onStartup) {
+            model.on("error", displayError);
+            model.on("change", displayJson);
+        }
+        model.on("change", function(m) {
+            $(".signedIn").find("img").attr("src", m.get("picture"));
+            $(".signedIn").find("h5").html(m.get("email"));
+        });
+        model.fetch({ "url": "https://www.googleapis.com/oauth2/v1/userinfo" });
+    };
+
     var fetchAbout = function () {
         var model = new Backbone.GoogleDrive.Model({ "kind": "drive#about" });
         model.on("change", displayJson);
@@ -210,6 +228,7 @@
     };
 
     // activate event listeners
+    $("a.user-info").on("click", displayThenExecute(fetchUserInfo));
     $("a.about").on("click", displayThenExecute(fetchAbout));
     $("a.list-apps").on("click", displayThenExecute(listApps));
     $("a.list-folders").on("click", displayThenExecute(listFolders));
