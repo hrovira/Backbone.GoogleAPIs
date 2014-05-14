@@ -83,9 +83,78 @@
 
                 _.bindAll(this, "url", "fetch", "list");
             },
-            "url": function() {},
-            "fetch": function(options) {},
-            "list": function(options) {}
+
+            "url": function() {
+                if (_.isEmpty(this.get("kind"))) return __base_url() + "/files";
+                if (__is_kind(this, "drive#appList")) return __base_url() + "/apps";
+                if (__is_kind(this, "drive#changeList")) {
+                    var largestChangeId = parseInt(this.get("largestChangeId"));
+                    if (!_.isNaN(largestChangeId)) {
+                        return __base_url() + "/changes?startChangeId=" + (largestChangeId + 1);
+                    }
+                    return __base_url() + "/changes";
+                }
+
+                if (__is_kind(this, "drive#fileList")) return __base_url() + "/files";
+                if (__is_kind(this, "drive#appList")) return __base_url() + "/apps";
+
+                var baseUrl = __base_url() + "/files/" + this.get("fileId");
+                if (__is_kind(this, "drive#childList")) return baseUrl + "/children";
+                if (__is_kind(this, "drive#parentList")) return baseUrl + "/parents";
+                if (__is_kind(this, "drive#permissionList")) return baseUrl + "/permissions";
+                if (__is_kind(this, "drive#revisionList")) return baseUrl + "/revisions";
+                if (__is_kind(this, "drive#propertyList")) return baseUrl + "/properties";
+
+                if (__is_kind(this, "drive#commentList")) return baseUrl + "/comments";
+                if (__is_kind(this, "drive#commentReplyList")) {
+                    var cId = this.get("commentId");
+                    return baseUrl + "/comments/" + cId + "/replies";
+                }
+
+                return __base_url() + "/files";
+            },
+
+            "fetch": function(options) {
+                return this.list(options);
+            },
+
+            "list": function(options) {
+                options = options || {};
+
+                var pkg = {
+                    "url": this.url(),
+                    "method": "GET",
+                    "dataType": "json",
+                    "contentType": "application/json",
+                    "headers": _.extend({}, options["headers"], __oauth_headers()),
+                    "success": function(json) {
+                        this.set(json);
+                        this.trigger("list");
+                    },
+                    "error": function(e) {
+                        this.trigger("error", this, e, pkg);
+                        this.trigger("list");
+                    },
+                    "context": this
+                };
+
+                if (_.has(options, "query")) {
+                    var queryable = [
+                        "drive#changeList",
+                        "drive#childList",
+                        "drive#parentList",
+                        "drive#permissionList"
+                    ];
+                    if (__is_kind(this, queryable)) {
+                        _.extend(pkg, {
+                            "data": _.extend({}, options["query"]),
+                            "traditional": true
+                        });
+                    }
+                }
+
+                return $.ajax(pkg);
+            }
         });
 
         var ChangeListModel = ListModel.extend({
@@ -93,21 +162,36 @@
                 "kind": "drive#changeList",
                 "active": true
             },
-            "initialize": function() {
-                ListModel.prototype.initialize.call(this);
 
-                _.bindAll(this, "list");
+            "url": function() {
+                var largestChangeId = parseInt(this.get("largestChangeId"));
+                if (!_.isNaN(largestChangeId)) {
+                    return __base_url() + "/changes?startChangeId=" + (largestChangeId + 1);
+                }
+                return __base_url() + "/changes";
             },
-            "list": function(options) {},
 
             "poll": function(options) {
                 options = options || {};
+
+                var list_fn = _.bind(this.__list_if_active, this);
+
+                this.set("active", true);
                 this.on("list", function() {
-                    _.delay(this.list, options["delayInMillis"] || 5000);
+                    _.delay(list_fn, options["delayInMillis"] || 5000);
                 }, this);
+                _.defer(list_fn);
             },
+
             "unpoll": function() {
                 this.stopListening("list");
+                this.set("active", false);
+            },
+
+            "__list_if_active": function() {
+                if (this.get("active")) {
+                    this.list();
+                }
             }
         });
 
