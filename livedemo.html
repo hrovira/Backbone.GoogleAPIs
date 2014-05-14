@@ -19,11 +19,17 @@
     <script type="text/javascript" async="true" src="https://apis.google.com/js/client:plusone.js"></script>
     <script type="text/javascript">
         var signinCallback = function (json) {
-            if (json && json["status"] && json["status"]["signed_in"]) $("#signinButton").hide();
+            json = json || {};
+
             Backbone.GoogleDrive.AccessToken = json["access_token"];
 
-            Backbone.history.start();
             _.defer(fetchUserInfo, true);
+
+            try {
+                Backbone.history.start();
+            } catch (e) {
+                console.warn(e);
+            }
         };
     </script>
 </head>
@@ -37,12 +43,18 @@
 
                 <p><a class="btn btn-primary btn-sm" role="button"
                       href="https://github.com/hrovira/Backbone.GoogleDrive" target="_blank">API documentation</a></p>
-
-                <p>
-                    <!-- HELLO! -->
-                    <!-- This 'client_id' will only work from my domain. -->
-                    <!-- If you are forking this project, you should replace with your own 'client_id' -->
-                    <!-- Go to https://console.developers.google.com/project, create a project, and generate a 'client_id' -->
+            </div>
+            <div class="col-md-6">
+                <h5>Javascript Dependencies</h5>
+                <ul class="nav nav-list deps-container">
+                </ul>
+            </div>
+            <div class="well col-md-3">
+                <!-- HELLO! -->
+                <!-- This 'client_id' will only work from my domain. -->
+                <!-- If you are forking this project, you should replace with your own 'client_id' -->
+                <!-- Go to https://console.developers.google.com/project, create a project, and generate a 'client_id' -->
+                <div class="signed-out">
                     <span id="signinButton">
                         <span class="g-signin"
                               data-callback="signinCallback"
@@ -52,16 +64,13 @@
                               data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile">
                         </span>
                     </span>
-                    <div class="signedIn">
-                        <img src="" style="width: 50px;"/>
-                        <h5></h5>
-                    </div>
-                </p>
-            </div>
-            <div class="col-md-8">
-                <h5>Javascript Dependencies</h5>
-                <ul class="nav nav-list deps-container">
-                </ul>
+                </div>
+                <div class="signed-in hide">
+                    <img src="" style="width: 50px;"/>
+                    <h5></h5>
+                    <a class="btn btn-mini btn-danger" href="#sign-out">Sign Out</a>
+                    <a class="btn btn-mini" href="https://accounts.google.com/b/0/IssuedAuthSubTokens" target="_blank">Revoke access</a>
+                </div>
             </div>
         </div>
 
@@ -143,8 +152,10 @@
             model.on("change", displayJson);
         }
         model.on("change", function (m) {
-            $(".signedIn").find("img").attr("src", m.get("picture"));
-            $(".signedIn").find("h5").html(m.get("email"));
+            $(".signed-in").find("img").attr("src", m.get("picture"));
+            $(".signed-in").find("h5").html(m.get("email"));
+            $(".signed-in").removeClass("hide");
+            $(".signed-out").addClass("hide");
         });
         model.fetch({ "url": "https://www.googleapis.com/oauth2/v1/userinfo" });
     };
@@ -261,6 +272,23 @@
     app.__route("file-fetch", fileFetch);
     app.__route("file-update", fileUpdate);
     app.__route("file-trash", fileTrash);
+    app.__route("sign-out", function() {
+        if (_.isEmpty(Backbone.GoogleDrive.AccessToken)) {
+            document.location = document.location.href.replace("#sign-out", "");
+            return;
+        }
+
+        var po = document.createElement("script");
+        po["type"] = "text/javascript";
+        po["async"] = true;
+        po["src"] = "https://accounts.google.com/o/oauth2/revoke?token=" + Backbone.GoogleDrive.AccessToken;
+        po["onload"] = function() {
+            document.location = document.location.href.replace("#sign-out", "");
+        };
+
+        var s = document.getElementsByTagName("script")[0];
+        s["parentNode"].insertBefore(po, s);
+    });
 </script>
 </body>
 </html>
