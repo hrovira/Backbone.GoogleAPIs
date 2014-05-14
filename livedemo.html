@@ -66,10 +66,11 @@
                     </span>
                 </div>
                 <div class="signed-in hide">
-                    <img src="" style="width: 50px;"/>
-                    <h5></h5>
-                    <a class="btn btn-mini btn-danger" href="#sign-out">Sign Out</a>
-                    <a class="btn btn-mini" href="https://accounts.google.com/b/0/IssuedAuthSubTokens" target="_blank">Revoke access</a>
+                    <img class="signed-in-picture" src="" style="width: 50px;"/>
+                    <h6><small>Signed in as</small></h6>
+                    <h6 class="signed-in-email"></h6>
+                    <a class="btn btn-sm btn-danger" href="#sign-out">Sign Out</a>
+                    <a class="btn btn-sm" href="https://accounts.google.com/b/0/IssuedAuthSubTokens" target="_blank">Revoke access</a>
                 </div>
             </div>
         </div>
@@ -152,8 +153,8 @@
             model.on("change", displayJson);
         }
         model.on("change", function (m) {
-            $(".signed-in").find("img").attr("src", m.get("picture"));
-            $(".signed-in").find("h5").html(m.get("email"));
+            $(".signed-in-picture").attr("src", m.get("picture"));
+            $(".signed-in-email").html(m.get("email"));
             $(".signed-in").removeClass("hide");
             $(".signed-out").addClass("hide");
         });
@@ -272,7 +273,7 @@
     app.__route("file-fetch", fileFetch);
     app.__route("file-update", fileUpdate);
     app.__route("file-trash", fileTrash);
-    app.__route("sign-out", function() {
+    app.route("sign-out", "sign-out", function() {
         if (_.isEmpty(Backbone.GoogleDrive.AccessToken)) {
             document.location = document.location.href.replace("#sign-out", "");
             return;
