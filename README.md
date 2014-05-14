@@ -2,6 +2,8 @@ backbone.googledrive
 ==================== 
 ### _UNDER DEVELOPMENT_
 
+[Test Page / Live Demo](https://hrovira.github.io/Backbone.GoogleDrive/#list-apps)
+
 Backbone.js Models for Google Drive
 
 This library extends Backbone.js Model to adapt the semantics of the [Google Drive API v2](https://developers.google.com/drive/v2/reference/)
