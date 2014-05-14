@@ -2,7 +2,7 @@ backbone.googledrive
 ==================== 
 ### _UNDER DEVELOPMENT_
 
-[Test Page / Live Demo](https://hrovira.github.io/Backbone.GoogleDrive/#list-apps)
+[Test Page / Live Demo](https://hrovira.github.io/Backbone.GoogleDrive)
 
 Backbone.js Models for Google Drive
 
