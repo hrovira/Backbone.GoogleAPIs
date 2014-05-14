@@ -158,13 +158,33 @@
         if (response) {
             if (response.responseJSON) {
                 var $el = $(".error-container").empty();
-                new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, response.responseJSON);
+                var json = response.responseJSON;
+                new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, json);
             } else {
-                $(".error-container").html(response.responseText || "Unknown Error #1");
+                var txt = response.responseText || "Unknown Error #1";
+                $(".error-container").html(txt);
             }
         } else {
             $(".error-container").html("Unknown Error #2");
         }
+    };
+
+    var signOut = function() {
+        if (_.isEmpty(Backbone.GoogleDrive.AccessToken)) {
+            document.location = document.location.href.replace("#sign-out", "");
+            return;
+        }
+
+        var po = document.createElement("script");
+        po["type"] = "text/javascript";
+        po["async"] = true;
+        po["src"] = "https://accounts.google.com/o/oauth2/revoke?token=" + Backbone.GoogleDrive.AccessToken;
+        po["onload"] = function() {
+            document.location = document.location.href.replace("#sign-out", "");
+        };
+
+        var s = document.getElementsByTagName("script")[0];
+        s["parentNode"].insertBefore(po, s);
     };
 
     // example functions
@@ -296,23 +316,7 @@
     app.__route("file-fetch", fileFetch);
     app.__route("file-update", fileUpdate);
     app.__route("file-trash", fileTrash);
-    app.route("sign-out", "sign-out", function() {
-        if (_.isEmpty(Backbone.GoogleDrive.AccessToken)) {
-            document.location = document.location.href.replace("#sign-out", "");
-            return;
-        }
-
-        var po = document.createElement("script");
-        po["type"] = "text/javascript";
-        po["async"] = true;
-        po["src"] = "https://accounts.google.com/o/oauth2/revoke?token=" + Backbone.GoogleDrive.AccessToken;
-        po["onload"] = function() {
-            document.location = document.location.href.replace("#sign-out", "");
-        };
-
-        var s = document.getElementsByTagName("script")[0];
-        s["parentNode"].insertBefore(po, s);
-    });
+    app.__route("sign-out", signOut);
 </script>
 </body>
 </html>
