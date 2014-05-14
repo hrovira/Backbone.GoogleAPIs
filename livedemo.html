@@ -2,6 +2,13 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <meta name="google-signin-clientid" content="735622011915-e988pa3i31rboijnurmmk5tsgv32v8me.apps.googleusercontent.com" />
+    <meta name="google-signin-cookiepolicy" content="single_host_origin" />
+    <meta name="google-signin-callback" content="signinCallback" />
+    <meta name="google-signin-requestvisibleactions" content="https://schemas.google.com/AddActivity" />
+    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile" />
+
     <title>Backbone.GoogleDrive | Test Console</title>
 
     <script type="text/javascript"
@@ -12,10 +19,14 @@
             <!--src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>-->
     <script type="text/javascript"
             src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+    <script type="text/javascript"
+            src="//cdnjs.cloudflare.com/ajax/libs/jsoneditor/2.3.6/jsoneditor-min.js"></script>
 
     <script type="text/javascript" src="./backbone.googledrive.js"></script>
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jsoneditor/2.3.6/jsoneditor-min.css"/>
+
     <script type="text/javascript" async="true" src="https://apis.google.com/js/client:plusone.js"></script>
     <script type="text/javascript">
         var signinCallback = function (json) {
@@ -56,13 +67,7 @@
                 <!-- Go to https://console.developers.google.com/project, create a project, and generate a 'client_id' -->
                 <div class="signed-out">
                     <span id="signinButton">
-                        <span class="g-signin"
-                              data-callback="signinCallback"
-                              data-clientid="735622011915-e988pa3i31rboijnurmmk5tsgv32v8me.apps.googleusercontent.com"
-                              data-cookiepolicy="single_host_origin"
-                              data-requestvisibleactions="http://schemas.google.com/AddActivity"
-                              data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile">
-                        </span>
+                        <span class="g-signin"></span>
                     </span>
                 </div>
                 <div class="signed-in hide">
@@ -111,11 +116,17 @@
                 <div class="panel-body">
                     <h5>Javascript</h5>
                     <pre class="code-container pre-scrollable"><--- Select one of the example operations to begin</pre>
-                    <h5>Model Contents after HTTP Response</h5>
-                    <pre class="json-container pre-scrollable"></pre>
+
                     <h5>Errors</h5>
 
                     <div class="error-container well pre-scrollable"></div>
+
+                    <h5>Model Contents after HTTP Response</h5>
+
+                    <div class="json-container" style="height: 400px;"></div>
+                </div>
+                <div class="panel-footer panel-primary">
+                    <p><a href="https://github.com/josdejong/jsoneditor" target="_blank">JSON Editor by Jos de Jong</a></p>
                 </div>
             </div>
         </div>
@@ -124,6 +135,7 @@
 <script type="text/javascript">
     // shared among File operations after insert
     var FileId;
+    var ChangeList = {};
 
     // displays JS dependencies
     _.defer(function () {
@@ -138,11 +150,21 @@
 
     // support functions
     var displayJson = function (m) {
-        $(".json-container").html(JSON.stringify(m.toJSON(), undefined, 2));
+        var $el = $(".json-container").empty();
+        new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, m.toJSON());
     };
 
     var displayError = function (model, response) {
-        $(".error-container").html(response.responseText);
+        if (response) {
+            if (response.responseJSON) {
+                var $el = $(".error-container").empty();
+                new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, response.responseJSON);
+            } else {
+                $(".error-container").html(response.responseText || "Unknown Error #1");
+            }
+        } else {
+            $(".error-container").html("Unknown Error #2");
+        }
     };
 
     // example functions
@@ -169,7 +191,7 @@
     };
 
     var pollChangeList = function () {
-        var model = new Backbone.GoogleDrive.ChangeList();
+        var model = ChangeList = new Backbone.GoogleDrive.ChangeList();
         model.on("change", displayJson);
         model.on("error", displayError);
         model.poll();
@@ -235,6 +257,7 @@
         "__route": function(name, target_fn) {
             var wrapping_fn = function () {
                 if (_.isFunction(target_fn)) _.defer(target_fn);
+                if (!_.isUndefined(ChangeList) && _.isFunction(ChangeList.unpoll)) ChangeList.unpoll();
 
                 $(".json-container").empty();
                 $(".error-container").empty();
