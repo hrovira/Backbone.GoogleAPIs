@@ -316,7 +316,7 @@
             }
         });
 
-        _BiG_ = Backbone.Model.extend({
+        var _BGModel_ = Backbone.Model.extend({
             "defaults": {
                 "version": "0.0.1",
                 "GoogleApisUrl": "https://www.googleapis.com"
@@ -385,6 +385,7 @@
             }
         });
 
+        _BiG_ = new _BGModel_();
         Backbone.GoogleAPIs = _BiG_;
         return _BiG_;
     });
