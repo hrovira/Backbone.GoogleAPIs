@@ -1,4 +1,4 @@
-backbone.googledrive 
+backbone.googledrive
 ==================== 
 ### _UNDER DEVELOPMENT_
 
@@ -13,7 +13,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
     * Expectations
     * Not Implemented
     * Renamed Functions
-  * [Backbone.GoogleDrive API](#this-api)
+  * [Backbone.GoogleAPIs](#this-api)
     * Class API Descriptions
     * Class Hierarchy
     * Published Events
@@ -53,7 +53,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ---------
 
-### <a name="this-api">Backbone.GoogleDrive API</a>
+### <a name="this-api">Backbone.GoogleAPIs API</a>
 
 #### Global Options
   * Service Root
@@ -83,7 +83,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | fetch          |                       |         |
 | list           |                       |         |
 
-#### ChangeList (extends Backbone.GoogleDrive.List)
+#### ChangeList (extends Backbone.GoogleAPIs.List)
   * Defaults _kind_ to _"drive#changeList"_
 
 | Function       | Description           | Options |
@@ -93,7 +93,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | list           |                       |         |
 | poll           |                       | delayInMillis |
 
-#### File (extends Backbone.GoogleDrive.Model)
+#### File (extends Backbone.GoogleAPIs.Model)
   * Defaults _kind_ to _"drive#file"_
 
 | Function         | Description           | Options |
@@ -112,7 +112,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | revisions        |                       |         |
 | comments         |                       |         |
 
-#### Folder (extends Backbone.GoogleDrive.File)
+#### Folder (extends Backbone.GoogleAPIs.Drive.File)
   * Defaults _kind_ to _"drive#file"_
   * Defaults _parent_ to _"root"_
   * Defaults _mimeType_ to _"application/vnd.google-apps.folder"_
@@ -141,7 +141,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ### Lookup About
 ```
-    var model = new Backbone.GoogleDrive.Model({
+    var model = new Backbone.GoogleAPIs.Model({
         "kind": "drive#about"
     });
     model.on("change", function() {
@@ -152,7 +152,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ### List Apps
 ```
-    var model = new Backbone.GoogleDrive.List({
+    var model = new Backbone.GoogleAPIs.List({
         "kind": "drive#appsList"
     });
     model.on("change", function() {
@@ -166,7 +166,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ### Retrieve File
 ```
-    var model = new Backbone.GoogleDrive.File({
+    var model = new Backbone.GoogleAPIs.Drive.File({
         "url": ""
     });
     model.fetch();
@@ -174,21 +174,21 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ### Store File
 ```
-    var model = new Backbone.GoogleDrive.File({
+    var model = new Backbone.GoogleAPIs.Drive.File({
     });
     model.fetch();
 ```
 
 ### List Files
 ```
-    var model = new Backbone.GoogleDrive.List({
+    var model = new Backbone.GoogleAPIs.List({
     });
     model.fetch();
 ```
 
 ### List Files in a Folder
 ```
-    var folder = new Backbone.GoogleDrive.Folder({
+    var folder = new Backbone.GoogleAPIs.Drive.Folder({
         "id": "generated_by_google, as seen in URLs"
     });
 
@@ -203,7 +203,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ### Monitor Changes
 ```
-    var model = new Backbone.GoogleDrive.ChangeList({});
+    var model = new Backbone.GoogleAPIs.Drive.ChangeList({});
     model.poll({ "delayInMillis": 5000 });
     model.on("change", function() {
         _.each(model.get("items"), function(item) {

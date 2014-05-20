@@ -7,9 +7,9 @@
     <meta name="google-signin-cookiepolicy" content="single_host_origin" />
     <meta name="google-signin-callback" content="signinCallback" />
     <meta name="google-signin-requestvisibleactions" content="https://schemas.google.com/AddActivity" />
-    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile" />
+    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/devstorage.read_write" />
 
-    <title>Backbone.GoogleDrive | Test Console</title>
+    <title>Backbone.GoogleAPIs | Test Console</title>
 
     <script type="text/javascript"
             src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
@@ -32,7 +32,8 @@
         var signinCallback = function (json) {
             json = json || {};
 
-            Backbone.GoogleDrive.AccessToken = json["access_token"];
+            Backbone.GoogleAPIs.set("access_token", json["access_token"]);
+            Backbone.GoogleAPIs.set("signed_in_user", json);
 
             _.defer(fetchUserInfo, true);
 
@@ -49,7 +50,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-                <h4>Backbone.GoogleDrive</h4>
+                <h4>Backbone.GoogleAPIs</h4>
                 <h5>Test Console</h5>
 
                 <p><a class="btn btn-primary btn-sm" role="button"
@@ -170,7 +171,7 @@
     };
 
     var signOut = function() {
-        if (_.isEmpty(Backbone.GoogleDrive.AccessToken)) {
+        if (_.isEmpty(Backbone.GoogleAPIs.get("access_token"))) {
             document.location = document.location.href.replace("#sign-out", "");
             return;
         }
@@ -178,7 +179,7 @@
         var po = document.createElement("script");
         po["type"] = "text/javascript";
         po["async"] = true;
-        po["src"] = "https://accounts.google.com/o/oauth2/revoke?token=" + Backbone.GoogleDrive.AccessToken;
+        po["src"] = "https://accounts.google.com/o/oauth2/revoke?token=" + Backbone.GoogleAPIs.get("access_token");
         po["onload"] = function() {
             document.location = document.location.href.replace("#sign-out", "");
         };
@@ -189,7 +190,7 @@
 
     // example functions
     var fetchUserInfo = function (onStartup) {
-        var model = new Backbone.GoogleDrive.Model({});
+        var model = new Backbone.GoogleAPIs.UserInfo({});
         if (!onStartup) {
             model.on("error", displayError);
             model.on("change", displayJson);
@@ -200,40 +201,40 @@
             $(".signed-in").removeClass("hide");
             $(".signed-out").addClass("hide");
         });
-        model.fetch({ "url": "https://www.googleapis.com/oauth2/v1/userinfo" });
+        model.fetch();
     };
 
     var fetchAbout = function () {
-        var model = new Backbone.GoogleDrive.Model({ "kind": "drive#about" });
+        var model = new Backbone.GoogleAPIs.Model({ "kind": "drive#about" });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.fetch();
     };
 
     var pollChangeList = function () {
-        var model = ChangeList = new Backbone.GoogleDrive.ChangeList();
+        var model = ChangeList = new Backbone.GoogleAPIs.Drive.ChangeList();
         model.on("change", displayJson);
         model.on("error", displayError);
         model.poll();
     };
 
     var listApps = function () {
-        var model = new Backbone.GoogleDrive.List({ "kind": "drive#appList" });
+        var model = new Backbone.GoogleAPIs.List({ "kind": "drive#appList" });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.list();
     };
 
     var listFolders = function () {
-        var model = new Backbone.GoogleDrive.List({ "kind": "drive#fileList" });
+        var model = new Backbone.GoogleAPIs.List({ "kind": "drive#fileList" });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.list({ "q": "mimeType='application/vnd.google-apps.folder'" });
     };
 
     var fileInsert = function () {
-        var model = new Backbone.GoogleDrive.File({
-            "title": "Backbone.GoogleDrive | Test"
+        var model = new Backbone.GoogleAPIs.Drive.File({
+            "title": "Backbone.GoogleAPIs | Test"
         });
         model.on("change:id", function (m) {
             FileId = m.get("id");
@@ -246,7 +247,7 @@
     var fileFetch = function () {
         if (!FileId) return $(".error-container").html("Insert File First");
 
-        var model = new Backbone.GoogleDrive.File({ "id": FileId });
+        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.fetch();
@@ -255,9 +256,9 @@
     var fileUpdate = function () {
         if (!FileId) return $(".error-container").html("Insert File First");
 
-        var model = new Backbone.GoogleDrive.File();
+        var model = new Backbone.GoogleAPIs.Drive.File();
         model.set("id", FileId);
-        model.set("title", "Backbone.GoogleDrive | Test | New Title");
+        model.set("title", "Backbone.GoogleAPIs | Test | New Title");
         model.on("change", displayJson);
         model.on("error", displayError);
         model.update();
@@ -266,7 +267,7 @@
     var fileTrash = function () {
         if (!FileId) return $(".error-container").html("Insert File First");
 
-        var model = new Backbone.GoogleDrive.File({ "id": FileId });
+        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.trash();
