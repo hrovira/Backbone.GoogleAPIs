@@ -15,12 +15,11 @@
             src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script type="text/javascript"
             src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
-    <!--<script type="text/javascript"-->
-            <!--src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>-->
+    <script type="text/javascript"
+            src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script type="text/javascript"
             src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
-    <script type="text/javascript"
-            src="//cdnjs.cloudflare.com/ajax/libs/jsoneditor/2.3.6/jsoneditor-min.js"></script>
+    <script type="text/javascript" src="//rawgithub.com/hrovira/jsoneditor/v2.3.6-hrov/jsoneditor-min.js"></script>
 
     <script type="text/javascript" src="./backbone.googledrive.js"></script>
 
@@ -111,12 +110,30 @@
                 <a class="list-group-item" href="#file-update">Update File</a>
                 <a class="list-group-item" href="#file-trash">Trash File</a>
             </div>
+            <div class="list-group top-level-anchors">
+                <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
+                    <h5 class="list-group-item-heading">Cloud Storage Operations</h5>
+                </a>
+                <a class="list-group-item" href="#list-buckets">List Buckets</a>
+            </div>
         </div>
         <div class="col-md-8">
             <div class="panel panel-primary">
                 <div class="panel-body">
                     <h5>Javascript</h5>
                     <pre class="code-container pre-scrollable"><--- Select one of the example operations to begin</pre>
+
+                    <div class="list-buckets-inputs hide">
+                        <h5>Required Inputs</h5>
+                        <div class="well pre-scrollable">
+                            <input type="text" class="buckets-project-id" placeholder="Storage Project Id"/>
+                            <p class="help-block"><small>obtain Project ID from the <a href="https://console.developers.google.com/project" target="_blank">Google Cloud Storage Console</a></small></p>
+                            <button type="submit" class="btn btn-success list-buckets-btn">List Buckets</button>
+                            <div class="alert alert-warning alert-dismissable buckets-needs-project-id hide">
+                                <strong>Warning!</strong> Project ID is required!
+                            </div>
+                        </div>
+                    </div>
 
                     <h5>Errors</h5>
 
@@ -150,6 +167,15 @@
     });
 
     // support functions
+    var resetDisplay = function(ev) {
+        if (_.isEqual(ev, "list-buckets")) {
+            $(".list-buckets-inputs").show().removeClass("hide");
+        } else {
+            $(".list-buckets-inputs").hide();
+        }
+        $(".buckets-needs-project-id").hide();
+    };
+
     var displayJson = function (m) {
         var $el = $(".json-container").empty();
         new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, m.toJSON());
@@ -189,17 +215,33 @@
     };
 
     // example functions
+    var signInUser = function(m) {
+        var email = m.get("email");
+        if (_.isEmpty(email)) {
+            $(".signed-out").show().removeClass("hide");
+            return;
+        }
+
+        $(".signed-in").show().removeClass("hide");
+
+        $(".signed-in-email").html(email);
+
+        var picture = m.get("picture");
+        if (!_.isEmpty(picture)) $(".signed-in-picture").attr("src", picture);
+    };
+
     var fetchUserInfo = function (onStartup) {
+        $(".signed-out").hide();
+        $(".signed-in").hide();
+
         var model = new Backbone.GoogleAPIs.UserInfo({});
         if (!onStartup) {
             model.on("error", displayError);
             model.on("change", displayJson);
         }
-        model.on("change", function (m) {
-            $(".signed-in-picture").attr("src", m.get("picture"));
-            $(".signed-in-email").html(m.get("email"));
-            $(".signed-in").removeClass("hide");
-            $(".signed-out").addClass("hide");
+        model.on("change", signInUser);
+        model.on("error", function() {
+            $(".signed-out").show().removeClass("hide");
         });
         model.fetch();
     };
@@ -230,6 +272,24 @@
         model.on("change", displayJson);
         model.on("error", displayError);
         model.list({ "q": "mimeType='application/vnd.google-apps.folder'" });
+    };
+
+    var listBuckets = function () {
+        var model = new Backbone.GoogleAPIs.CloudStorage.List({ "kind": "storage#buckets" });
+        model.on("change", displayJson);
+        model.on("error", displayError);
+
+        $(".list-buckets-btn").on("click", function() {
+            $(".buckets-needs-project-id").hide();
+
+            var project_id = $(".buckets-project-id").val() || "";
+            if (_.isEmpty(project_id.trim())) {
+                $(".buckets-needs-project-id").show().removeClass("hide");
+                return;
+            }
+            model.set("projectId", project_id);
+            _.defer(model.list);
+        });
     };
 
     var fileInsert = function () {
@@ -308,6 +368,8 @@
     });
     app = new App();
     app.on("route", app.__toggle_active);
+    app.on("route", resetDisplay);
+
     app.__route("userinfo", fetchUserInfo);
     app.__route("about", fetchAbout);
     app.__route("list-apps", listApps);
@@ -318,6 +380,7 @@
     app.__route("file-update", fileUpdate);
     app.__route("file-trash", fileTrash);
     app.__route("sign-out", signOut);
+    app.__route("list-buckets", listBuckets);
 </script>
 </body>
 </html>
