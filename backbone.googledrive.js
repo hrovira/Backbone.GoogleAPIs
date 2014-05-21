@@ -11,19 +11,15 @@
 })(this, function($, _, Backbone) {
         var local_model = {};
 
-        var __is_kind = function (m, targetKind) {
-            if (_.isUndefined(m)) return false;
-            if (_.isEmpty(targetKind)) return false;
-            return _.contains(_.flatten([targetKind]), m.get("kind"));
+        var IsKind = function(model, kind_s) {
+            if (_.isUndefined(model)) return false;
+            if (_.isEmpty(kind_s)) return false;
+            return _.contains(_.flatten([kind_s]), model.get("kind"));
         };
 
-        var __base_url = function() {
-            return Backbone.GoogleDrive.BaseUrl;
-        };
-
-        var __oauth_headers = function() {
-            if (!_.isEmpty(Backbone.GoogleDrive.AccessToken)) {
-                return { "Authorization": "Bearer " + Backbone.GoogleDrive.AccessToken };
+        var OAuthHeaders = function(model) {
+            if (!_.isEmpty(model.get("access_token"))) {
+                return { "Authorization": "Bearer " + model.get("access_token") };
             }
             return {};
         };
@@ -35,29 +31,29 @@
                 _.bindAll(this, "url", "fetch", "insert", "patch", "update", "delete");
             },
             "url": function() {
-                if (_.isEmpty(this.get("kind"))) return __base_url() + "/files";
-                if (__is_kind(this, "drive#about")) return __base_url() + "/about";
+                if (_.isEmpty(this.get("kind"))) return _iM_.get("DriveUrl") + "/files";
+                if (IsKind(this, "drive#about")) return _iM_.get("DriveUrl") + "/about";
 
                 var id = this.get("id");
-                if (__is_kind(this, "drive#app")) return __base_url() + "/apps/" + id;
-                if (__is_kind(this, "drive#change")) return __base_url() + "/changes/" + id;
+                if (IsKind(this, "drive#app")) return _iM_.get("DriveUrl") + "/apps/" + id;
+                if (IsKind(this, "drive#change")) return _iM_.get("DriveUrl") + "/changes/" + id;
 
-                var baseUrl = __base_url() + "/files/" + this.get("fileId");
-                if (__is_kind(this, "drive#childReference")) return baseUrl + "/children/" + id;
-                if (__is_kind(this, "drive#parentReference")) return baseUrl + "/parents/" + id;
-                if (__is_kind(this, "drive#permission")) return baseUrl + "/permissions/" + id;
-                if (__is_kind(this, "drive#revision")) return baseUrl + "/revisions/" + id;
-                if (__is_kind(this, "drive#property")) {
+                var baseUrl = _iM_.get("DriveUrl") + "/files/" + this.get("fileId");
+                if (IsKind(this, "drive#childReference")) return baseUrl + "/children/" + id;
+                if (IsKind(this, "drive#parentReference")) return baseUrl + "/parents/" + id;
+                if (IsKind(this, "drive#permission")) return baseUrl + "/permissions/" + id;
+                if (IsKind(this, "drive#revision")) return baseUrl + "/revisions/" + id;
+                if (IsKind(this, "drive#property")) {
                     var propertyKey = this.get("propertyKey");
                     return baseUrl + "/properties/" + propertyKey;
                 }
 
-                if (__is_kind(this, "drive#comment")) return baseUrl + "/comments/" + id;
-                if (__is_kind(this, "drive#commentReply")) {
+                if (IsKind(this, "drive#comment")) return baseUrl + "/comments/" + id;
+                if (IsKind(this, "drive#commentReply")) {
                     var cId = this.get("commentId");
                     return baseUrl + "/comments/" + cId + "/replies/" + id;
                 }
-                return __base_url() + "/files";
+                return _iM_.get("DriveUrl") + "/files";
             },
             "fetch": function(options) {
                 options = options || {};
@@ -66,7 +62,7 @@
                     "url": this.url(),
                     "dataType": "json",
                     "contentType": "application/json",
-                    "headers": _.extend({}, options["headers"], __oauth_headers())
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_))
                 };
 
                 return Backbone.Model.prototype.fetch.call(this, _.extend(pkg, options));
@@ -85,33 +81,33 @@
             },
 
             "url": function() {
-                if (_.isEmpty(this.get("kind"))) return __base_url() + "/files";
-                if (__is_kind(this, "drive#appList")) return __base_url() + "/apps";
-                if (__is_kind(this, "drive#changeList")) {
+                if (_.isEmpty(this.get("kind"))) return _iM_.get("DriveUrl") + "/files";
+                if (IsKind(this, "drive#appList")) return _iM_.get("DriveUrl") + "/apps";
+                if (IsKind(this, "drive#changeList")) {
                     var largestChangeId = parseInt(this.get("largestChangeId"));
                     if (!_.isNaN(largestChangeId)) {
-                        return __base_url() + "/changes?startChangeId=" + (largestChangeId + 1);
+                        return _iM_.get("DriveUrl") + "/changes?startChangeId=" + (largestChangeId + 1);
                     }
-                    return __base_url() + "/changes";
+                    return _iM_.get("DriveUrl") + "/changes";
                 }
 
-                if (__is_kind(this, "drive#fileList")) return __base_url() + "/files";
-                if (__is_kind(this, "drive#appList")) return __base_url() + "/apps";
+                if (IsKind(this, "drive#fileList")) return _iM_.get("DriveUrl") + "/files";
+                if (IsKind(this, "drive#appList")) return _iM_.get("DriveUrl") + "/apps";
 
-                var baseUrl = __base_url() + "/files/" + this.get("fileId");
-                if (__is_kind(this, "drive#childList")) return baseUrl + "/children";
-                if (__is_kind(this, "drive#parentList")) return baseUrl + "/parents";
-                if (__is_kind(this, "drive#permissionList")) return baseUrl + "/permissions";
-                if (__is_kind(this, "drive#revisionList")) return baseUrl + "/revisions";
-                if (__is_kind(this, "drive#propertyList")) return baseUrl + "/properties";
+                var baseUrl = _iM_.get("DriveUrl") + "/files/" + this.get("fileId");
+                if (IsKind(this, "drive#childList")) return baseUrl + "/children";
+                if (IsKind(this, "drive#parentList")) return baseUrl + "/parents";
+                if (IsKind(this, "drive#permissionList")) return baseUrl + "/permissions";
+                if (IsKind(this, "drive#revisionList")) return baseUrl + "/revisions";
+                if (IsKind(this, "drive#propertyList")) return baseUrl + "/properties";
 
-                if (__is_kind(this, "drive#commentList")) return baseUrl + "/comments";
-                if (__is_kind(this, "drive#commentReplyList")) {
+                if (IsKind(this, "drive#commentList")) return baseUrl + "/comments";
+                if (IsKind(this, "drive#commentReplyList")) {
                     var cId = this.get("commentId");
                     return baseUrl + "/comments/" + cId + "/replies";
                 }
 
-                return __base_url() + "/files";
+                return _iM_.get("DriveUrl") + "/files";
             },
 
             "fetch": function(options) {
@@ -126,7 +122,7 @@
                     "method": "GET",
                     "dataType": "json",
                     "contentType": "application/json",
-                    "headers": _.extend({}, options["headers"], __oauth_headers()),
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
                     "success": function(json) {
                         this.set(json);
                         this.trigger("list");
@@ -145,7 +141,7 @@
                         "drive#parentList",
                         "drive#permissionList"
                     ];
-                    if (__is_kind(this, queryable)) {
+                    if (IsKind(this, queryable)) {
                         _.extend(pkg, {
                             "data": _.extend({}, options["query"]),
                             "traditional": true
@@ -166,9 +162,9 @@
             "url": function() {
                 var largestChangeId = parseInt(this.get("largestChangeId"));
                 if (!_.isNaN(largestChangeId)) {
-                    return __base_url() + "/changes?startChangeId=" + (largestChangeId + 1);
+                    return _iM_.get("DriveUrl") + "/changes?startChangeId=" + (largestChangeId + 1);
                 }
-                return __base_url() + "/changes";
+                return _iM_.get("DriveUrl") + "/changes";
             },
 
             "poll": function(options) {
@@ -234,16 +230,177 @@
             }
         });
 
-        var gdrive_component = {
-            "version": "0.0.1",
+        // @TODO : Implement based on https://developers.google.com/storage/docs/json_api/v1
+    // @TODO : Creating buckets and objects depend on naming requirements (https://developers.google.com/storage/docs/bucketnaming#requirements)
+    // - Perhaps insert is not supported by model at this time, create your buckets through their console? Or implement name check?
+    // @TODO : Capture Project ID from list?
+    // @TODO : Implement off v2
+        var CloudStorageModel = BasicModel.extend({
+            "kinds": [
+                "storage#bucket",
+                "storage#bucketAccessControl",
+                "storage#object",
+                "storage#objectAccessControl"
+            ],
+            "entities": [
+                "user-userId",
+                "user-emailAddress",
+                "group-groupId",
+                "group-emailAddress",
+                "allUsers",
+                "allAuthenticatedUsers"
+            ],
+
+            "initialize": function(options) {
+                options = options || {};
+                this.set("project", options.project);
+                BasicModel.prototype.initialize.call(this, options);
+            },
+
+            "url": function() {
+                if (_.isEmpty(this.get("kind"))) return _iM_.get("StorageUrl");
+
+                var bucket_name = this.get("name");
+                if (!bucket_name) return _iM_.get("StorageUrl");
+
+                var bucket_url = _iM_.get("StorageUrl") + "/" + bucket_name;
+                if (IsKind(this, "storage#bucket")) return bucket_url;
+
+                var object_name = this.get("name");
+                if (IsKind(this, "storage#object")) {
+                    if (this.get("isUpload")) return _iM_.get("StorageUploadUrl") + "/" + bucket_name + "/o";
+                    if (object_name) return bucket_url + "/o/" + object_name;
+                    return bucket_url + "/o";
+                }
+
+                var entity = this.get("entity");
+                if (IsKind(this, "storage#bucketAccessControl")) {
+                    if (entity) return bucket_url + "/acl/" + entity;
+                    return bucket_url + "/acl";
+                }
+
+                if (IsKind(this, "storage#objectAccessControl")) {
+                    if (this.get("defaultObjectAcl"))  {
+                        if (entity) return bucket_url + "/defaultObjectAcl/" + entity;
+                        return bucket_url + "/defaultObjectAcl";
+                    }
+
+                    if (object_name) {
+                        if (entity) return bucket_url + "/o/" + object_name + "/acl/" + entity;
+                        return bucket_url + "/o/" + object_name + "/acl";
+                    }
+                }
+
+                return _iM_.get("StorageUrl");
+            },
+
+            "delete": function(){},
+            "insert": function(){},
+            "patch": function(){},
+            "update": function(){},
+
+            "SubClasses": {
+                "Bucket": {
+                },
+                "BucketACL": {
+                },
+                "Object": {
+                    "compose": function(){},
+                    "copy": function(){}
+                },
+                "ObjectACL": {
+                }
+            }
+        });
+
+        var CloudStorageList = ListModel.extend({
+            "kinds": [
+                "storage#buckets",
+                "storage#bucketAccessControls",
+                "storage#objects",
+                "storage#objectAccessControls"
+            ],
+            "url": function () {
+                var project_id = this.get("projectId");
+                var q_fragment = "?project="  + project_id;
+
+                var storage_url = _iM_.get("StorageUrl");
+
+                if (_.isEmpty(this.get("kind"))) return storage_url;
+                if (IsKind(this, "storage#buckets")) return storage_url + q_fragment;
+
+                var bucket_id = this.get("id");
+                if (!bucket_id) return storage_url + q_fragment;
+
+                var bucket_name = this.get("id");
+                var bucket_url = storage_url + "/" + bucket_id;
+
+                if (IsKind(this, "storage#objects")) return bucket_url + "/o" + q_fragment;
+                if (IsKind(this, "storage#bucketAccessControls")) return bucket_url + "/acl" + q_fragment;
+                if (IsKind(this, "storage#bucketAccessControls")) {
+                    return bucket_url + "/o/" + this.get("name") + "/acl" + q_fragment;
+                }
+
+                return _iM_.get("StorageUrl");
+            }
+        });
+
+        var UserInfoModel = BasicModel.extend({
+            "url": function() {
+                return _iM_.get("UserInfoUrl");
+            }
+        });
+
+        var _InternalModel_ = Backbone.Model.extend({
+            "defaults": {
+                "version": "0.0.1"
+            },
+
             "Model": BasicModel,
             "List": ListModel,
-            "ChangeList": ChangeListModel,
-            "File": FileModel,
-            "Folder": FolderModel,
-            "BaseUrl": "https://www.googleapis.com/drive/v2"
-        };
+            "Drive": {
+                "ChangeList": ChangeListModel,
+                "File": FileModel,
+                "Folder": FolderModel
+            },
+            "UserInfo": UserInfoModel,
+            "CloudStorage": {
+                "Bucket": CloudStorageModel,
+                "BucketACL": CloudStorageModel,
+                "Object": CloudStorageModel,
+                "ObjectACL": CloudStorageModel,
+                "BucketList": CloudStorageList,
+                "BucketACLList": CloudStorageList,
+                "ObjectList": CloudStorageList,
+                "ObjectACLList": CloudStorageList,
+                "Model": CloudStorageModel,
+                "List": CloudStorageList
+            },
+            "BigQuery": {},
+            "Genomics": {},
+            "KindMap": {
+                "drive#file": FileModel,
+                "drive#fileList": FolderModel,
+                "storage#bucket": CloudStorageModel,
+                "storage#bucketAccessControl": CloudStorageModel,
+                "storage#object": CloudStorageModel,
+                "storage#objectAccessControl": CloudStorageModel,
+                "storage#buckets": CloudStorageList,
+                "storage#bucketAccessControls": CloudStorageList,
+                "storage#objects": CloudStorageList,
+                "storage#objectAccessControls": CloudStorageList
+            },
 
-        Backbone.GoogleDrive = gdrive_component;
-        return gdrive_component;
+            "initialize": function() {
+                this.on("change:GoogleApisUrl", function() {
+                    this.set("DriveUrl", this.get("GoogleApisUrl") + "/drive/v2");
+                    this.set("StorageUrl", this.get("GoogleApisUrl") + "/storage/v1/b");
+                    this.set("StorageUploadUrl", this.get("GoogleApisUrl") + "/upload/storage/v1/b");
+                    this.set("UserInfoUrl", this.get("GoogleApisUrl") + "/oauth2/v1/userinfo");
+                }, this);
+                this.set("GoogleApisUrl", "https://www.googleapis.com");
+            }
+        });
+
+        return Backbone.GoogleAPIs = _iM_ = new _InternalModel_();
     });
