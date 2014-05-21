@@ -11,6 +11,19 @@
 })(this, function($, _, Backbone) {
         var local_model = {};
 
+        var IsKind = function(model, kind_s) {
+            if (_.isUndefined(model)) return false;
+            if (_.isEmpty(kind_s)) return false;
+            return _.contains(_.flatten([kind_s]), model.get("kind"));
+        };
+
+        var OAuthHeaders = function(model) {
+            if (!_.isEmpty(model.get("access_token"))) {
+                return { "Authorization": "Bearer " + model.get("access_token") };
+            }
+            return {};
+        };
+
         var BasicModel = Backbone.Model.extend({
             "initialize": function() {
                 Backbone.Model.prototype.initialize.call(this);
@@ -18,29 +31,29 @@
                 _.bindAll(this, "url", "fetch", "insert", "patch", "update", "delete");
             },
             "url": function() {
-                if (_.isEmpty(this.get("kind"))) return _BiG_.__drive_url() + "/files";
-                if (_BiG_.__is_kind(this, "drive#about")) return _BiG_.__drive_url() + "/about";
+                if (_.isEmpty(this.get("kind"))) return _iM_.get("DriveUrl") + "/files";
+                if (IsKind(this, "drive#about")) return _iM_.get("DriveUrl") + "/about";
 
                 var id = this.get("id");
-                if (_BiG_.__is_kind(this, "drive#app")) return _BiG_.__drive_url() + "/apps/" + id;
-                if (_BiG_.__is_kind(this, "drive#change")) return _BiG_.__drive_url() + "/changes/" + id;
+                if (IsKind(this, "drive#app")) return _iM_.get("DriveUrl") + "/apps/" + id;
+                if (IsKind(this, "drive#change")) return _iM_.get("DriveUrl") + "/changes/" + id;
 
-                var baseUrl = _BiG_.__drive_url() + "/files/" + this.get("fileId");
-                if (_BiG_.__is_kind(this, "drive#childReference")) return baseUrl + "/children/" + id;
-                if (_BiG_.__is_kind(this, "drive#parentReference")) return baseUrl + "/parents/" + id;
-                if (_BiG_.__is_kind(this, "drive#permission")) return baseUrl + "/permissions/" + id;
-                if (_BiG_.__is_kind(this, "drive#revision")) return baseUrl + "/revisions/" + id;
-                if (_BiG_.__is_kind(this, "drive#property")) {
+                var baseUrl = _iM_.get("DriveUrl") + "/files/" + this.get("fileId");
+                if (IsKind(this, "drive#childReference")) return baseUrl + "/children/" + id;
+                if (IsKind(this, "drive#parentReference")) return baseUrl + "/parents/" + id;
+                if (IsKind(this, "drive#permission")) return baseUrl + "/permissions/" + id;
+                if (IsKind(this, "drive#revision")) return baseUrl + "/revisions/" + id;
+                if (IsKind(this, "drive#property")) {
                     var propertyKey = this.get("propertyKey");
                     return baseUrl + "/properties/" + propertyKey;
                 }
 
-                if (_BiG_.__is_kind(this, "drive#comment")) return baseUrl + "/comments/" + id;
-                if (_BiG_.__is_kind(this, "drive#commentReply")) {
+                if (IsKind(this, "drive#comment")) return baseUrl + "/comments/" + id;
+                if (IsKind(this, "drive#commentReply")) {
                     var cId = this.get("commentId");
                     return baseUrl + "/comments/" + cId + "/replies/" + id;
                 }
-                return _BiG_.__drive_url() + "/files";
+                return _iM_.get("DriveUrl") + "/files";
             },
             "fetch": function(options) {
                 options = options || {};
@@ -49,7 +62,7 @@
                     "url": this.url(),
                     "dataType": "json",
                     "contentType": "application/json",
-                    "headers": _.extend({}, options["headers"], _BiG_.__oauth_headers())
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_))
                 };
 
                 return Backbone.Model.prototype.fetch.call(this, _.extend(pkg, options));
@@ -68,33 +81,33 @@
             },
 
             "url": function() {
-                if (_.isEmpty(this.get("kind"))) return _BiG_.__drive_url() + "/files";
-                if (_BiG_.__is_kind(this, "drive#appList")) return _BiG_.__drive_url() + "/apps";
-                if (_BiG_.__is_kind(this, "drive#changeList")) {
+                if (_.isEmpty(this.get("kind"))) return _iM_.get("DriveUrl") + "/files";
+                if (IsKind(this, "drive#appList")) return _iM_.get("DriveUrl") + "/apps";
+                if (IsKind(this, "drive#changeList")) {
                     var largestChangeId = parseInt(this.get("largestChangeId"));
                     if (!_.isNaN(largestChangeId)) {
-                        return _BiG_.__drive_url() + "/changes?startChangeId=" + (largestChangeId + 1);
+                        return _iM_.get("DriveUrl") + "/changes?startChangeId=" + (largestChangeId + 1);
                     }
-                    return _BiG_.__drive_url() + "/changes";
+                    return _iM_.get("DriveUrl") + "/changes";
                 }
 
-                if (_BiG_.__is_kind(this, "drive#fileList")) return _BiG_.__drive_url() + "/files";
-                if (_BiG_.__is_kind(this, "drive#appList")) return _BiG_.__drive_url() + "/apps";
+                if (IsKind(this, "drive#fileList")) return _iM_.get("DriveUrl") + "/files";
+                if (IsKind(this, "drive#appList")) return _iM_.get("DriveUrl") + "/apps";
 
-                var baseUrl = _BiG_.__drive_url() + "/files/" + this.get("fileId");
-                if (_BiG_.__is_kind(this, "drive#childList")) return baseUrl + "/children";
-                if (_BiG_.__is_kind(this, "drive#parentList")) return baseUrl + "/parents";
-                if (_BiG_.__is_kind(this, "drive#permissionList")) return baseUrl + "/permissions";
-                if (_BiG_.__is_kind(this, "drive#revisionList")) return baseUrl + "/revisions";
-                if (_BiG_.__is_kind(this, "drive#propertyList")) return baseUrl + "/properties";
+                var baseUrl = _iM_.get("DriveUrl") + "/files/" + this.get("fileId");
+                if (IsKind(this, "drive#childList")) return baseUrl + "/children";
+                if (IsKind(this, "drive#parentList")) return baseUrl + "/parents";
+                if (IsKind(this, "drive#permissionList")) return baseUrl + "/permissions";
+                if (IsKind(this, "drive#revisionList")) return baseUrl + "/revisions";
+                if (IsKind(this, "drive#propertyList")) return baseUrl + "/properties";
 
-                if (_BiG_.__is_kind(this, "drive#commentList")) return baseUrl + "/comments";
-                if (_BiG_.__is_kind(this, "drive#commentReplyList")) {
+                if (IsKind(this, "drive#commentList")) return baseUrl + "/comments";
+                if (IsKind(this, "drive#commentReplyList")) {
                     var cId = this.get("commentId");
                     return baseUrl + "/comments/" + cId + "/replies";
                 }
 
-                return _BiG_.__drive_url() + "/files";
+                return _iM_.get("DriveUrl") + "/files";
             },
 
             "fetch": function(options) {
@@ -109,7 +122,7 @@
                     "method": "GET",
                     "dataType": "json",
                     "contentType": "application/json",
-                    "headers": _.extend({}, options["headers"], _BiG_.__oauth_headers()),
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
                     "success": function(json) {
                         this.set(json);
                         this.trigger("list");
@@ -128,7 +141,7 @@
                         "drive#parentList",
                         "drive#permissionList"
                     ];
-                    if (_BiG_.__is_kind(this, queryable)) {
+                    if (IsKind(this, queryable)) {
                         _.extend(pkg, {
                             "data": _.extend({}, options["query"]),
                             "traditional": true
@@ -149,9 +162,9 @@
             "url": function() {
                 var largestChangeId = parseInt(this.get("largestChangeId"));
                 if (!_.isNaN(largestChangeId)) {
-                    return _BiG_.__drive_url() + "/changes?startChangeId=" + (largestChangeId + 1);
+                    return _iM_.get("DriveUrl") + "/changes?startChangeId=" + (largestChangeId + 1);
                 }
-                return _BiG_.__drive_url() + "/changes";
+                return _iM_.get("DriveUrl") + "/changes";
             },
 
             "poll": function(options) {
@@ -229,6 +242,14 @@
                 "storage#object",
                 "storage#objectAccessControl"
             ],
+            "entities": [
+                "user-userId",
+                "user-emailAddress",
+                "group-groupId",
+                "group-emailAddress",
+                "allUsers",
+                "allAuthenticatedUsers"
+            ],
 
             "initialize": function(options) {
                 options = options || {};
@@ -237,42 +258,40 @@
             },
 
             "url": function() {
-                var DEFAULT_TO_NEW_BUCKET = _BiG_.__storage_url() + "/b";
-                if (_.isEmpty(this.get("kind"))) return DEFAULT_TO_NEW_BUCKET;
+                if (_.isEmpty(this.get("kind"))) return _iM_.get("StorageUrl");
 
-                var bucket_id = this.get("id");
-                var bucket_name = this.get("id");
-                if (!bucket_id) return DEFAULT_TO_NEW_BUCKET;
+                var bucket_name = this.get("name");
+                if (!bucket_name) return _iM_.get("StorageUrl");
 
-                var bucket_url = _BiG_.__storage_url() + "/b/" + bucket_id;
-                if (_BiG_.__is_kind(this, "storage#bucket")) return bucket_url;
+                var bucket_url = _iM_.get("StorageUrl") + "/" + bucket_name;
+                if (IsKind(this, "storage#bucket")) return bucket_url;
 
-                var object_id = this.get("id");
-                if (_BiG_.__is_kind(this, "storage#object")) {
-                    if (this.get("isUpload")) return _BiG_.__storage_upload_url() + "/b/" + bucket_id + "/o";
-                    if (object_id) return bucket_url + "/o/" + object_id;
+                var object_name = this.get("name");
+                if (IsKind(this, "storage#object")) {
+                    if (this.get("isUpload")) return _iM_.get("StorageUploadUrl") + "/" + bucket_name + "/o";
+                    if (object_name) return bucket_url + "/o/" + object_name;
                     return bucket_url + "/o";
                 }
 
-                var entity_id = this.get("id");
-                if (_BiG_.__is_kind(this, "storage#bucketAccessControl")) {
-                    if (entity_id) return bucket_url + "/acl/" + entity_id;
+                var entity = this.get("entity");
+                if (IsKind(this, "storage#bucketAccessControl")) {
+                    if (entity) return bucket_url + "/acl/" + entity;
                     return bucket_url + "/acl";
                 }
 
-                if (_BiG_.__is_kind(this, "storage#objectAccessControl")) {
+                if (IsKind(this, "storage#objectAccessControl")) {
                     if (this.get("defaultObjectAcl"))  {
-                        if (entity_id) return bucket_url + "/defaultObjectAcl/" + entity_id;
+                        if (entity) return bucket_url + "/defaultObjectAcl/" + entity;
                         return bucket_url + "/defaultObjectAcl";
                     }
 
-                    if (object_id) {
-                        if (entity_id) return bucket_url + "/o/" + object_id + "/acl/" + entity_id;
-                        return bucket_url + "/o/" + object_id + "/acl";
+                    if (object_name) {
+                        if (entity) return bucket_url + "/o/" + object_name + "/acl/" + entity;
+                        return bucket_url + "/o/" + object_name + "/acl";
                     }
                 }
 
-                return DEFAULT_TO_NEW_BUCKET;
+                return _iM_.get("StorageUrl");
             },
 
             "delete": function(){},
@@ -302,24 +321,39 @@
                 "storage#objectAccessControls"
             ],
             "url": function () {
-                // list
-                    // GET https://www.googleapis.com/storage/v1/b (#buckets)
-                    // GET https://www.googleapis.com/storage/v1/b/{bucket}/o (#objects)
-                    // GET https://www.googleapis.com/storage/v1/b/{bucket}/acl (#bucket ACLs)
-                    // GET https://www.googleapis.com/storage/v1/b/{bucket}/defaultObjectAcl (may only return one?)
+                var project_id = this.get("projectId");
+                var q_fragment = "?project="  + project_id;
+
+                var storage_url = _iM_.get("StorageUrl");
+
+                if (_.isEmpty(this.get("kind"))) return storage_url;
+                if (IsKind(this, "storage#buckets")) return storage_url + q_fragment;
+
+                var bucket_id = this.get("id");
+                if (!bucket_id) return storage_url + q_fragment;
+
+                var bucket_name = this.get("id");
+                var bucket_url = storage_url + "/" + bucket_id;
+
+                if (IsKind(this, "storage#objects")) return bucket_url + "/o" + q_fragment;
+                if (IsKind(this, "storage#bucketAccessControls")) return bucket_url + "/acl" + q_fragment;
+                if (IsKind(this, "storage#bucketAccessControls")) {
+                    return bucket_url + "/o/" + this.get("name") + "/acl" + q_fragment;
+                }
+
+                return _iM_.get("StorageUrl");
             }
         });
 
         var UserInfoModel = BasicModel.extend({
             "url": function() {
-                return _BiG_.__userinfo_url();
+                return _iM_.get("UserInfoUrl");
             }
         });
 
-        var _BGModel_ = Backbone.Model.extend({
+        var _InternalModel_ = Backbone.Model.extend({
             "defaults": {
-                "version": "0.0.1",
-                "GoogleApisUrl": "https://www.googleapis.com"
+                "version": "0.0.1"
             },
 
             "Model": BasicModel,
@@ -338,7 +372,9 @@
                 "BucketList": CloudStorageList,
                 "BucketACLList": CloudStorageList,
                 "ObjectList": CloudStorageList,
-                "ObjectACLList": CloudStorageList
+                "ObjectACLList": CloudStorageList,
+                "Model": CloudStorageModel,
+                "List": CloudStorageList
             },
             "BigQuery": {},
             "Genomics": {},
@@ -355,37 +391,16 @@
                 "storage#objectAccessControls": CloudStorageList
             },
 
-            "__drive_url": function() {
-                return this.get("GoogleApisUrl") + "/drive/v2";
-            },
-
-            "__storage_url": function() {
-                return this.get("GoogleApisUrl") + "/storage/v1";
-            },
-
-            "__storage_upload_url": function() {
-                return this.get("GoogleApisUrl") + "/upload/storage/v1";
-            },
-
-            "__userinfo_url": function() {
-                return this.get("GoogleApisUrl") + "/oauth2/v1/userinfo";
-            },
-
-            "__oauth_headers": function() {
-                if (!_.isEmpty(this.get("access_token"))) {
-                    return { "Authorization": "Bearer " + this.get("access_token") };
-                }
-                return {};
-            },
-
-            "__is_kind": function (m, targetKind) {
-                if (_.isUndefined(m)) return false;
-                if (_.isEmpty(targetKind)) return false;
-                return _.contains(_.flatten([targetKind]), m.get("kind"));
+            "initialize": function() {
+                this.on("change:GoogleApisUrl", function() {
+                    this.set("DriveUrl", this.get("GoogleApisUrl") + "/drive/v2");
+                    this.set("StorageUrl", this.get("GoogleApisUrl") + "/storage/v1/b");
+                    this.set("StorageUploadUrl", this.get("GoogleApisUrl") + "/upload/storage/v1/b");
+                    this.set("UserInfoUrl", this.get("GoogleApisUrl") + "/oauth2/v1/userinfo");
+                }, this);
+                this.set("GoogleApisUrl", "https://www.googleapis.com");
             }
         });
 
-        _BiG_ = new _BGModel_();
-        Backbone.GoogleAPIs = _BiG_;
-        return _BiG_;
+        return Backbone.GoogleAPIs = _iM_ = new _InternalModel_();
     });
