@@ -186,50 +186,52 @@ var fileTrash = function () {
 };
 
 // bootstraps example functions
-App = Backbone.Router.extend({
-    "__route": function (name, target_fn) {
-        var wrapping_fn = function () {
-            if (_.isFunction(target_fn)) _.defer(target_fn);
-            if (!_.isUndefined(ChangeList) && _.isFunction(ChangeList.unpoll)) ChangeList.unpoll();
+_.defer(function () {
+    var App = Backbone.Router.extend({
+        "__route": function (name, target_fn) {
+            var wrapping_fn = function () {
+                if (_.isFunction(target_fn)) _.defer(target_fn);
+                if (!_.isUndefined(ChangeList) && _.isFunction(ChangeList.unpoll)) ChangeList.unpoll();
 
-            $(".json-container").empty();
-            $(".error-container").empty();
+                $(".json-container").empty();
+                $(".error-container").empty();
 
-            // pretty printing target_fn
-            var strFn = "" + target_fn;
-            var parts = [];
+                // pretty printing target_fn
+                var strFn = "" + target_fn;
+                var parts = [];
 
-            if (strFn.indexOf("FileId") >= 0) parts.push("var FileId = \"" + (FileId || "") + "\";");
-            parts.push("" + strFn);
-            if (strFn.indexOf("displayJson") >= 0) parts.push("var displayJson = " + displayJson + ";");
-            if (strFn.indexOf("displayError") >= 0) parts.push("var displayError = " + displayError + ";");
-            $(".code-container").html(parts.join("\n\n"));
-        };
+                if (strFn.indexOf("FileId") >= 0) parts.push("var FileId = \"" + (FileId || "") + "\";");
+                parts.push("" + strFn);
+                if (strFn.indexOf("displayJson") >= 0) parts.push("var displayJson = " + displayJson + ";");
+                if (strFn.indexOf("displayError") >= 0) parts.push("var displayError = " + displayError + ";");
+                $(".code-container").html(parts.join("\n\n"));
+            };
 
-        this.route(name, name, wrapping_fn);
-    }
-});
-app = new App();
-app.on("route", resetDisplay);
-app.on("route", function(href) {
-    // toggles active list item
-    _.each($(".top-level-anchors").find("a.list-group-item"), function (item) {
-        $(item).removeClass("active");
-        if (_.isEqual($(item).attr("href"), "#" + href)) $(item).addClass("active");
+            this.route(name, name, wrapping_fn);
+        }
     });
-});
+    app = new App();
+    app.on("route", resetDisplay);
+    app.on("route", function (href) {
+        // toggles active list item
+        _.each($(".top-level-anchors").find("a.list-group-item"), function (item) {
+            $(item).removeClass("active");
+            if (_.isEqual($(item).attr("href"), "#" + href)) $(item).addClass("active");
+        });
+    });
 
-app.__route("userinfo", fetchUserInfo);
-app.__route("about", fetchAbout);
-app.__route("list-apps", listApps);
-app.__route("list-folders", listFolders);
-app.__route("list-changes", pollChangeList);
-app.__route("file-insert", fileInsert);
-app.__route("file-fetch", fileFetch);
-app.__route("file-update", fileUpdate);
-app.__route("file-trash", fileTrash);
-app.__route("sign-out", signOut);
-app.__route("list-buckets", listBuckets);
+    app.__route("userinfo", fetchUserInfo);
+    app.__route("about", fetchAbout);
+    app.__route("list-apps", listApps);
+    app.__route("list-folders", listFolders);
+    app.__route("list-changes", pollChangeList);
+    app.__route("file-insert", fileInsert);
+    app.__route("file-fetch", fileFetch);
+    app.__route("file-update", fileUpdate);
+    app.__route("file-trash", fileTrash);
+    app.__route("sign-out", signOut);
+    app.__route("list-buckets", listBuckets);
+});
 
 // displays JS dependencies
 _.defer(function () {
