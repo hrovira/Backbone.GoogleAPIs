@@ -134,18 +134,16 @@
                     "context": this
                 };
 
-                if (_.has(options, "query")) {
-                    var queryable = [
+                if (_.has(options, "?")) {
+                    var questionable = [
+                        "drive#fileList",
                         "drive#changeList",
                         "drive#childList",
                         "drive#parentList",
                         "drive#permissionList"
                     ];
-                    if (IsKind(this, queryable)) {
-                        _.extend(pkg, {
-                            "data": _.extend({}, options["query"]),
-                            "traditional": true
-                        });
+                    if (IsKind(this, questionable)) {
+                        _.extend(pkg, { "data": _.extend({}, options["?"]), "traditional": true });
                     }
                 }
 
