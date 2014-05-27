@@ -231,6 +231,14 @@ _.defer(function () {
     app.__route("file-trash", fileTrash);
     app.__route("sign-out", signOut);
     app.__route("list-buckets", listBuckets);
+
+    app.route("goto-https", "goto-https", function() {
+        var loca = document["location"];
+        document["location"] = "https:" + (loca["host"] || loca["hostname"]) + loca["pathname"];
+    });
+    if (document.location.protocol === "https:") {
+        $(".goto-https-container").hide();
+    }
 });
 
 // displays JS dependencies
