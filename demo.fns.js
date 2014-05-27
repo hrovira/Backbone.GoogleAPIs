@@ -123,7 +123,7 @@ var listFolders = function () {
     var model = new Backbone.GoogleAPIs.List({ "kind": "drive#fileList" });
     model.on("change", displayJson);
     model.on("error", displayError);
-    model.list({ "q": "mimeType='application/vnd.google-apps.folder'" });
+    model.list({ "?": { "q": "mimeType='application/vnd.google-apps.folder'" } });
 };
 
 var listBuckets = function () {
