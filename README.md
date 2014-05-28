@@ -1,8 +1,8 @@
-backbone.googledrive
+backbone.googleapis
 ==================== 
 ### _UNDER DEVELOPMENT_
 
-[Test Page / Live Demo](https://hrovira.github.io/Backbone.GoogleDrive)
+[Test Page / Live Demo](https://hrovira.github.io/Backbone.GoogleAPIs)
 
 Backbone.js Models for Google Drive
 

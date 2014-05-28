@@ -390,13 +390,13 @@
             },
 
             "initialize": function() {
-                this.on("change:GoogleApisUrl", function() {
-                    this.set("DriveUrl", this.get("GoogleApisUrl") + "/drive/v2");
-                    this.set("StorageUrl", this.get("GoogleApisUrl") + "/storage/v1/b");
-                    this.set("StorageUploadUrl", this.get("GoogleApisUrl") + "/upload/storage/v1/b");
-                    this.set("UserInfoUrl", this.get("GoogleApisUrl") + "/oauth2/v1/userinfo");
+                this.on("change:GoogleAPIsUrl", function() {
+                    this.set("DriveUrl", this.get("GoogleAPIsUrl") + "/drive/v2");
+                    this.set("StorageUrl", this.get("GoogleAPIsUrl") + "/storage/v1/b");
+                    this.set("StorageUploadUrl", this.get("GoogleAPIsUrl") + "/upload/storage/v1/b");
+                    this.set("UserInfoUrl", this.get("GoogleAPIsUrl") + "/oauth2/v1/userinfo");
                 }, this);
-                this.set("GoogleApisUrl", "https://www.googleapis.com");
+                this.set("GoogleAPIsUrl", "https://www.googleapis.com");
             }
         });
 
