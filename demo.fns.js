@@ -202,9 +202,12 @@ _.defer(function () {
 
                 if (strFn.indexOf("FileId") >= 0) parts.push("var FileId = \"" + (FileId || "") + "\";");
                 parts.push("" + strFn);
-                if (strFn.indexOf("displayJson") >= 0) parts.push("var displayJson = " + displayJson + ";");
-                if (strFn.indexOf("displayError") >= 0) parts.push("var displayError = " + displayError + ";");
                 $(".code-container").html(parts.join("\n\n"));
+
+                var auxparts = [];
+                if (strFn.indexOf("displayJson") >= 0) auxparts.push("var displayJson = " + displayJson + ";");
+                if (strFn.indexOf("displayError") >= 0) auxparts.push("var displayError = " + displayError + ";");
+                $(".aux-code-container").html(auxparts.join("\n\n"));
             };
 
             this.route(name, name, wrapping_fn);

@@ -110,7 +110,14 @@
             <div class="panel panel-primary">
                 <div class="panel-body">
                     <h5>Javascript</h5>
-                    <pre class="code-container pre-scrollable"><--- Select one of the example operations to begin</pre>
+                    <pre class="code-container"><--- Select one of the example operations to begin</pre>
+
+                    <a href=#" onclick="return false;" data-toggle="collapse" data-target="#aux-fns">auxiliary functions
+                        <span class="glyphicon glyphicon-collapse-down"></span>
+                    </a>
+                    <div id="aux-fns" class="collapse">
+                        <pre class="aux-code-container"></pre>
+                    </div>
 
                     <div class="list-buckets-inputs hide">
                         <h5>Required Inputs</h5>
@@ -124,13 +131,13 @@
                         </div>
                     </div>
 
-                    <h5>Errors</h5>
-
-                    <div class="error-container well pre-scrollable"></div>
-
                     <h5>Model Contents after HTTP Response</h5>
 
                     <div class="json-container" style="height: 400px;"></div>
+
+                    <h5>Errors</h5>
+
+                    <div class="error-container well pre-scrollable"></div>
                 </div>
                 <div class="panel-footer panel-primary">
                     <p><a href="https://github.com/josdejong/jsoneditor" target="_blank">JSON Editor by Jos de Jong</a></p>
