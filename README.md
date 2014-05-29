@@ -17,12 +17,10 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
     * Class API Descriptions
     * Class Hierarchy
     * Published Events
-  * [Usage Examples](#usage-examples)
-    * Retrieve Files
-    * Store Files
-    * List Files
-    * List Files in a Folder
-    * Monitor Changes
+  * [Usage](#usage)
+    * Bower
+    * Require.JS (AMD)
+    * Plain HTML/Javascript
 
 ----------------------
 ### <a name="notes">Notes</a>
@@ -137,77 +135,32 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ---------
 
-## <a name="usage-examples">Usage Examples</a>
+## <a name="usage">Usage</a>
 
-### Lookup About
-```
-    var model = new Backbone.GoogleAPIs.Model({
-        "kind": "drive#about"
-    });
-    model.on("change", function() {
-        $(".about-container").html(HtmlTemplate(model.toJSON()));
-    });
-    model.fetch();
+### Bower
+```bash
+    bower install backbone.googleapis
 ```
 
-### List Apps
-```
-    var model = new Backbone.GoogleAPIs.List({
-        "kind": "drive#appsList"
-    });
-    model.on("change", function() {
-        var apps = model.get("items");
-        _.each(apps, function(app) {
-            $("ul.apps-list").append(LineItemLinkTemplate(app));
+### Require.JS (AMD)
+```javascript
+    define(["jquery", "underscore", "backbone", "backbone.googledrive"],
+        function ($, _, Backbone) {
+            var fileInstance = new Backbone.GoogleAPIs.Drive.File({});
+            var CustomModel = Backbone.GoogleAPIs.Model.extend({ });
         });
-    });
-    model.list();
 ```
 
-### Retrieve File
+### Plain HTML/Javascript
 ```
-    var model = new Backbone.GoogleAPIs.Drive.File({
-        "url": ""
-    });
-    model.fetch();
-```
-
-### Store File
-```
-    var model = new Backbone.GoogleAPIs.Drive.File({
-    });
-    model.fetch();
-```
-
-### List Files
-```
-    var model = new Backbone.GoogleAPIs.List({
-    });
-    model.fetch();
-```
-
-### List Files in a Folder
-```
-    var folder = new Backbone.GoogleAPIs.Drive.Folder({
-        "id": "generated_by_google, as seen in URLs"
-    });
-
-    var files = folder.files();
-    files.on("change", function() {
-        _.each(files.get("items"), function(file) {
-            $("ul.file-list").append(LineItemLinkTemplate(file));
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+    <script type="text/javascript" src="//rawgithub.com/hrovira/Backbone.GoogleAPIs/backbone.googleapis.js"></script>
+    <script type="text/javascript">
+        $( document ).ready(function() {
+            var fileInstance = new Backbone.GoogleAPIs.Drive.File({});
+            var CustomModel = Backbone.GoogleAPIs.Model.extend({ });
         });
-    });
-    files.list();
-```
-
-### Monitor Changes
-```
-    var model = new Backbone.GoogleAPIs.Drive.ChangeList({});
-    model.poll({ "delayInMillis": 5000 });
-    model.on("change", function() {
-        _.each(model.get("items"), function(item) {
-            // trigger changes by item or item.file attributes
-        });
-    });
+    </script>
 ```
