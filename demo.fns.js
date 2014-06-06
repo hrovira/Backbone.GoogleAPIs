@@ -99,7 +99,12 @@ var fetchUserInfo = function (onStartup) {
 };
 
 var fetchAbout = function () {
-    var model = new Backbone.GoogleAPIs.Model({ "kind": "drive#about" });
+    if ($.now() % 2 === 0) {
+        var model = new Backbone.GoogleAPIs.Model({ "kind": "drive#about" });
+    } else {
+        var model = new Backbone.GoogleAPIs.Drive.About();
+    }
+
     model.on("change", displayJson);
     model.on("error", displayError);
     model.fetch();

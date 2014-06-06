@@ -228,6 +228,17 @@
             }
         });
 
+        var AboutModel = BasicModel.extend({
+            "defaults": {
+                "kind": "drive#about"
+            },
+
+            "initialize": function() {
+                console.debug("GoogleAPIs.Drive.About");
+                BasicModel.prototype.initialize.call(this);
+            }
+        });
+
         // @TODO : Implement based on https://developers.google.com/storage/docs/json_api/v1
     // @TODO : Creating buckets and objects depend on naming requirements (https://developers.google.com/storage/docs/bucketnaming#requirements)
     // - Perhaps insert is not supported by model at this time, create your buckets through their console? Or implement name check?
@@ -365,6 +376,7 @@
             "Model": BasicModel,
             "List": ListModel,
             "Drive": {
+                "About": AboutModel,
                 "ChangeList": ChangeListModel,
                 "File": FileModel,
                 "Folder": FolderModel
