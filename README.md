@@ -1,15 +1,13 @@
 backbone.googleapis
 ==================== 
-### _UNDER DEVELOPMENT_
-
+#### _UNDER DEVELOPMENT_
 [Test Page / Live Demo](https://hrovira.github.io/Backbone.GoogleAPIs)
 
-Backbone.js Models for Google Drive
-
-This library extends Backbone.js Model to adapt the semantics of the [Google Drive API v2](https://developers.google.com/drive/v2/reference/)
-
 ## Table Of Contents
+  * [Overview](#overview)
+    * Supported Kinds
   * [Notes](#notes)
+    * Dependencies
     * Expectations
     * Not Implemented
     * Renamed Functions
@@ -17,23 +15,53 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
     * Class API Descriptions
     * Class Hierarchy
     * Published Events
-  * [Usage Examples](#usage-examples)
-    * Retrieve Files
-    * Store Files
-    * List Files
-    * List Files in a Folder
-    * Monitor Changes
+  * [Usage](#usage)
+    * Bower
+    * Require.JS (AMD)
+    * Plain HTML/Javascript
+
+
+### <a name="overview">Overview - Backbone.js Models for Google APIs</a>
+This library extends Backbone.js Model to provide CRUD operations compatible with the following Google APIs:
+  * [Drive API v2](https://developers.google.com/drive/v2/reference/)
+  * [OAuth2 API]()
+  * [Plus API (+)]()
+  * [Cloud Storage JSON API v1](https://developers.google.com/storage/docs/json_api/v1/)
+  * [BigQuery]()
+  * [GenomicsAPI]()
+
+#### Supported Kinds
+| drive#about | drive#app | drive#change | drive#childReference |
+| ----------- | ----------- | ----------- | ----------- |
+| drive#parentReference | drive#permission | drive#revision | drive#property |
+| drive#comment | drive#commentReply | drive#appList | drive#changeList |
+| drive#fileList | drive#appList | drive#childList | drive#parentList |
+| drive#permissionList | drive#revisionList | drive#propertyList | drive#commentList |
+| drive#commentReplyList | drive#file | | |
+| storage#bucket | storage#bucketAccessControl | storage#object | storage#objectAccessControl |
+| storage#buckets | storage#bucketAccessControls | storage#objects | storage#objectAccessControls |
+| plus#person | plus#peopleFeed | plus#moment | plus#momentsFeed |
+| plus#activity | plus#activityFeed | plus#comment | plus#commentFeed |
 
 ----------------------
 ### <a name="notes">Notes</a>
+#### Dependencies
+  * jQuery: ~2.0.2
+  * Underscore.js: ~1.4.4
+  * Backbone.js: ~1.0.0
+  * Require.js: ~2.1.5
+
+**_Ironically, Require.js is not actually a required dependency._** This library supports clients with and without AMD support
+
+
 #### Expectations
   * Using a Server-Side Authorization Scheme
-     * Supposes web client is connecting to Google Drive through a server-side proxy that handles the OAUTH2 flow
+     * Supposes web client is connecting to Google APIs through a server-side proxy that handles the OAUTH2 flow
      * https://developers.google.com/drive/web/auth/web-server
-     * Web-client code must provide a global uri that maps/extends google drive URLs
+     * Web-client code must provide a global uri that maps/extends google api URLs
         * e.g. /service_proxy/googleapis/drive/v2 -> https://www.googleapis.com/drive/v2
   * Using a Client-Side Authorization Scheme
-     * Supposes web client is using Google Drive Libraries that handles the OAUTH2 flow
+     * Supposes web client is using Google API Libraries that handle the OAUTH2 flow
      * https://developers.google.com/drive/web/auth/web-client
      * https://developers.google.com/+/web/signin/add-button
      * perform OAUTH2 flows
@@ -59,7 +87,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
   * Service Root
   * Authorization Headers
 
-#### Model (extends Backbone.Model)
+#### Backbone.GoogleAPIs.Model (extends Backbone.Model)
   * Requires _kind_ to be set at initialization
 
 | Function       | Description           | Options |
@@ -72,7 +100,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | update         |                       |         |
 | delete         |                       |         |
 
-#### List (extends Backbone.Model)
+#### Backbone.GoogleAPIs.List (extends Backbone.Model)
   * Requires _kind_ to be set at initialization
   * Expects one of the _list_ kinds (e.g. drive#commentList, drive#fileList)
 
@@ -83,7 +111,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | fetch          |                       |         |
 | list           |                       |         |
 
-#### ChangeList (extends Backbone.GoogleAPIs.List)
+#### Backbone.GoogleAPIs.Drive.ChangeList (extends Backbone.GoogleAPIs.List)
   * Defaults _kind_ to _"drive#changeList"_
 
 | Function       | Description           | Options |
@@ -92,8 +120,9 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | url            |                       |         |
 | list           |                       |         |
 | poll           |                       | delayInMillis |
+| unpoll         |                       |         |
 
-#### File (extends Backbone.GoogleAPIs.Model)
+#### Backbone.GoogleAPIs.Drive.File (extends Backbone.GoogleAPIs.Model)
   * Defaults _kind_ to _"drive#file"_
 
 | Function         | Description           | Options |
@@ -112,7 +141,7 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | revisions        |                       |         |
 | comments         |                       |         |
 
-#### Folder (extends Backbone.GoogleAPIs.Drive.File)
+#### Backbone.GoogleAPIs.Drive.Folder (extends Backbone.GoogleAPIs.Drive.File)
   * Defaults _kind_ to _"drive#file"_
   * Defaults _parent_ to _"root"_
   * Defaults _mimeType_ to _"application/vnd.google-apps.folder"_
@@ -121,12 +150,15 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 | -------------- | --------------------- | ------- |
 | initialize     |                       |         |
 
+#### Backbone.GoogleAPIs.UserInfo (extends Backbone.GoogleAPIs.Model)
+
 #### <a name="class-hierarchy">Class Hierarchy</a>
   * Model
-     * File
-         * Folder
+     * Drive.File
+         * Drive.Folder
+     * UserInfo
   * List
-     * ChangeList
+     * Drive.ChangeList
 
 ### <a name="published-events">Published Events</a>
   * Model
@@ -137,77 +169,45 @@ This library extends Backbone.js Model to adapt the semantics of the [Google Dri
 
 ---------
 
-## <a name="usage-examples">Usage Examples</a>
+## <a name="usage">Usage</a>
 
-### Lookup About
+### Bower
 ```
-    var model = new Backbone.GoogleAPIs.Model({
-        "kind": "drive#about"
-    });
-    model.on("change", function() {
-        $(".about-container").html(HtmlTemplate(model.toJSON()));
-    });
-    model.fetch();
+    bower install backbone.googleapis
 ```
 
-### List Apps
+### Require.JS (AMD)
 ```
-    var model = new Backbone.GoogleAPIs.List({
-        "kind": "drive#appsList"
-    });
-    model.on("change", function() {
-        var apps = model.get("items");
-        _.each(apps, function(app) {
-            $("ul.apps-list").append(LineItemLinkTemplate(app));
+    define(["jquery", "underscore", "backbone", "backbone.googleapis"],
+        function ($, _, Backbone) {
+            var fileInstance = new Backbone.GoogleAPIs.Drive.File({});
+            var otherFile = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#file" });
+            var CustomModel = Backbone.GoogleAPIs.Model.extend({ });
         });
-    });
-    model.list();
 ```
 
-### Retrieve File
+### Plain HTML/Javascript
 ```
-    var model = new Backbone.GoogleAPIs.Drive.File({
-        "url": ""
-    });
-    model.fetch();
-```
-
-### Store File
-```
-    var model = new Backbone.GoogleAPIs.Drive.File({
-    });
-    model.fetch();
-```
-
-### List Files
-```
-    var model = new Backbone.GoogleAPIs.List({
-    });
-    model.fetch();
-```
-
-### List Files in a Folder
-```
-    var folder = new Backbone.GoogleAPIs.Drive.Folder({
-        "id": "generated_by_google, as seen in URLs"
-    });
-
-    var files = folder.files();
-    files.on("change", function() {
-        _.each(files.get("items"), function(file) {
-            $("ul.file-list").append(LineItemLinkTemplate(file));
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+    <script type="text/javascript" src="//rawgithub.com/hrovira/Backbone.GoogleAPIs/backbone.googleapis.js"></script>
+    <script type="text/javascript">
+        $( document ).ready(function() {
+            var fileInstance = new Backbone.GoogleAPIs.Drive.File({});
+            var otherFile = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#file" });
+            var CustomModel = Backbone.GoogleAPIs.Model.extend({ });
         });
-    });
-    files.list();
+    </script>
 ```
 
-### Monitor Changes
+### Instantiation Modes
 ```
-    var model = new Backbone.GoogleAPIs.Drive.ChangeList({});
-    model.poll({ "delayInMillis": 5000 });
-    model.on("change", function() {
-        _.each(model.get("items"), function(item) {
-            // trigger changes by item or item.file attributes
-        });
-    });
+    // model instance by kind
+    var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "google#supported" });
+    var list = Backbone.GoogleAPIs.ModelFactory({ "kind": "google#supportedList" });
+
+    // model instance by class hierarcy
+    var model = new Backbone.GoogleAPIs.Drive.File();
+    var model = new Backbone.GoogleAPIs.Drive.ChangeList();
 ```

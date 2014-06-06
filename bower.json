@@ -2,12 +2,12 @@
     "name": "backbone.googleapis",
     "version": "0.0.1",
     "homepage": "https://github.com/hrovira/backbone.googleapis",
-    "description": "Backbone.js Models for Google Drive API v2",
+    "description": "Backbone.js Models compatible with Google APIs",
     "authors": [
         { "name": "Hector Rovira", "homepage": "https://github.com/hrovira" }
     ],
     "keywords": [
-        "backbone", "model", "google", "drive"
+        "backbone", "model", "google", "apis"
     ],
     "repository": {
       "type": "git",
