@@ -228,23 +228,12 @@
             }
         });
 
-        var AboutModel = BasicModel.extend({
-            "defaults": {
-                "kind": "drive#about"
-            },
-
-            "initialize": function() {
-                console.debug("GoogleAPIs.Drive.About");
-                BasicModel.prototype.initialize.call(this);
-            }
-        });
-
         // @TODO : Implement based on https://developers.google.com/storage/docs/json_api/v1
     // @TODO : Creating buckets and objects depend on naming requirements (https://developers.google.com/storage/docs/bucketnaming#requirements)
     // - Perhaps insert is not supported by model at this time, create your buckets through their console? Or implement name check?
     // @TODO : Capture Project ID from list?
     // @TODO : Implement off v2
-        var CloudStorageModel = BasicModel.extend({
+        var CSModel = BasicModel.extend({
             "kinds": [
                 "storage#bucket",
                 "storage#bucketAccessControl",
@@ -309,20 +298,14 @@
             "update": function(){},
 
             "SubClasses": {
-                "Bucket": {
-                },
-                "BucketACL": {
-                },
                 "Object": {
                     "compose": function(){},
                     "copy": function(){}
-                },
-                "ObjectACL": {
                 }
             }
         });
 
-        var CloudStorageList = ListModel.extend({
+        var CSList = ListModel.extend({
             "kinds": [
                 "storage#buckets",
                 "storage#bucketAccessControls",
@@ -354,12 +337,6 @@
             }
         });
 
-        var UserInfoModel = BasicModel.extend({
-            "url": function() {
-                return _iM_.get("UserInfoUrl");
-            }
-        });
-
         var PlusModel = BasicModel.extend({
             "kinds": [ "plus#person", "plus#moment", "plus#activity", "plus#comment" ]
         });
@@ -373,51 +350,76 @@
                 "version": "0.0.1"
             },
 
+            "KindMap": {
+                "drive#about": BasicModel,
+                "drive#changeList": ChangeListModel,
+                "drive#file": FileModel,
+                "drive#fileList": ListModel,
+                "drive#appList": ListModel,
+                "plus#person": PlusModel,
+                "plus#moment": PlusModel,
+                "plus#activity": PlusModel,
+                "plus#comment": PlusModel,
+                "plus#peopleFeed": PlusFeed,
+                "plus#momentsFeed": PlusFeed,
+                "plus#activityFeed": PlusFeed,
+                "plus#commentFeed": PlusFeed,
+                "storage#bucket": CSModel,
+                "storage#bucketAccessControl": CSModel,
+                "storage#object": CSModel,
+                "storage#objectAccessControl": CSModel,
+                "storage#buckets": CSList,
+                "storage#bucketAccessControls": CSList,
+                "storage#objects": CSList,
+                "storage#objectAccessControls": CSList
+            },
+
+            "ModelFactory": function(attributes, options) {
+                attributes = attributes || {};
+                options = options || {};
+
+                var Model = this.KindMap[attributes["kind"]];
+                if (Model) return new Model(attributes || {}, options);
+                return new BasicModel(attributes, options);
+            },
+
             "Model": BasicModel,
             "List": ListModel,
             "Drive": {
-                "About": AboutModel,
+                "About": BasicModel.extend({ "defaults": { "kind": "drive#about" } }),
                 "ChangeList": ChangeListModel,
                 "File": FileModel,
-                "Folder": FolderModel
+                "Folder": FolderModel,
+                "FileList": ListModel.extend({ "defaults": { "kind": "drive#fileList" } }),
+                "AppList": ListModel.extend({ "defaults": { "kind": "drive#appList" } })
             },
             "Plus": {
-                "Person": PlusModel,
-                "Moment": PlusModel,
-                "Activity": PlusModel,
-                "Comment": PlusModel,
-                "PeopleFeed": PlusFeed,
-                "MomentsFeed": PlusFeed,
-                "ActivityFeed": PlusFeed,
-                "CommentFeed": PlusFeed
+                "Person": PlusModel.extend({ "defaults": { "kind": "plus#person" } }),
+                "Moment": PlusModel.extend({ "defaults": { "kind": "plus#moment" } }),
+                "Activity": PlusModel.extend({ "defaults": { "kind": "plus#activity" } }),
+                "Comment": PlusModel.extend({ "defaults": { "kind": "plus#comment" } }),
+                "PeopleFeed": PlusFeed.extend({ "defaults": { "kind": "plus#peopleFeed" } }),
+                "MomentsFeed": PlusFeed.extend({ "defaults": { "kind": "plus#momentsFeed" } }),
+                "ActivityFeed": PlusFeed.extend({ "defaults": { "kind": "plus#activityFeed" } }),
+                "CommentFeed": PlusFeed.extend({ "defaults": { "kind": "plus#commentFeed" } })
             },
-            "UserInfo": UserInfoModel,
+            "UserInfo": BasicModel.extend({
+                "url": function() {
+                    return _iM_.get("UserInfoUrl");
+                }
+            }),
             "CloudStorage": {
-                "Bucket": CloudStorageModel,
-                "BucketACL": CloudStorageModel,
-                "Object": CloudStorageModel,
-                "ObjectACL": CloudStorageModel,
-                "BucketList": CloudStorageList,
-                "BucketACLList": CloudStorageList,
-                "ObjectList": CloudStorageList,
-                "ObjectACLList": CloudStorageList,
-                "Model": CloudStorageModel,
-                "List": CloudStorageList
+                "Bucket": CSModel.extend({ "defaults": { "kind": "storage#bucket" } }),
+                "BucketAccessControl": CSModel.extend({ "defaults": { "kind": "storage#bucketAccessControl" } }),
+                "Object": CSModel.extend({ "defaults": { "kind": "storage#object" } }),
+                "ObjectAccessControl": CSModel.extend({ "defaults": { "kind": "storage#objectAccessControl" } }),
+                "Buckets": CSList.extend({ "defaults": { "kind": "storage#buckets" } }),
+                "BucketAccessControls": CSList.extend({ "defaults": { "kind": "storage#bucketAccessControls" } }),
+                "Objects": CSList.extend({ "defaults": { "kind": "storage#objects" } }),
+                "ObjectAccessControls": CSList.extend({ "defaults": { "kind": "storage#objectAccessControls" } })
             },
             "BigQuery": {},
             "Genomics": {},
-            "KindMap": {
-                "drive#file": FileModel,
-                "drive#fileList": FolderModel,
-                "storage#bucket": CloudStorageModel,
-                "storage#bucketAccessControl": CloudStorageModel,
-                "storage#object": CloudStorageModel,
-                "storage#objectAccessControl": CloudStorageModel,
-                "storage#buckets": CloudStorageList,
-                "storage#bucketAccessControls": CloudStorageList,
-                "storage#objects": CloudStorageList,
-                "storage#objectAccessControls": CloudStorageList
-            },
 
             "initialize": function() {
                 this.on("change:GoogleAPIsUrl", function() {

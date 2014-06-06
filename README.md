@@ -181,6 +181,7 @@ This library extends Backbone.js Model to provide CRUD operations compatible wit
     define(["jquery", "underscore", "backbone", "backbone.googleapis"],
         function ($, _, Backbone) {
             var fileInstance = new Backbone.GoogleAPIs.Drive.File({});
+            var otherFile = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#file" });
             var CustomModel = Backbone.GoogleAPIs.Model.extend({ });
         });
 ```
@@ -194,6 +195,7 @@ This library extends Backbone.js Model to provide CRUD operations compatible wit
     <script type="text/javascript">
         $( document ).ready(function() {
             var fileInstance = new Backbone.GoogleAPIs.Drive.File({});
+            var otherFile = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#file" });
             var CustomModel = Backbone.GoogleAPIs.Model.extend({ });
         });
     </script>
@@ -201,11 +203,11 @@ This library extends Backbone.js Model to provide CRUD operations compatible wit
 
 ### Instantiation Modes
 ```
-    // load by kind
-    var model = new Backbone.GoogleAPIs.Model({ "kind": "google#supported" });
-    var list = new Backbone.GoogleAPIs.List({ "kind": "google#supportedList" });
+    // model instance by kind
+    var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "google#supported" });
+    var list = Backbone.GoogleAPIs.ModelFactory({ "kind": "google#supportedList" });
 
-    // load by class hierarcy
+    // model instance by class hierarcy
     var model = new Backbone.GoogleAPIs.Drive.File();
     var model = new Backbone.GoogleAPIs.Drive.ChangeList();
 ```
