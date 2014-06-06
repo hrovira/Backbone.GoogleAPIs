@@ -349,6 +349,14 @@
             }
         });
 
+        var PlusModel = BasicModel.extend({
+            "kinds": [ "plus#person", "plus#moment", "plus#activity", "plus#comment" ]
+        });
+
+        var PlusFeed = ListModel.extend({
+            "kinds": [ "plus#peopleFeed", "plus#momentsFeed", "plus#activityFeed", "plus#commentFeed" ]
+        });
+
         var _InternalModel_ = Backbone.Model.extend({
             "defaults": {
                 "version": "0.0.1"
@@ -360,6 +368,16 @@
                 "ChangeList": ChangeListModel,
                 "File": FileModel,
                 "Folder": FolderModel
+            },
+            "Plus": {
+                "Person": PlusModel,
+                "Moment": PlusModel,
+                "Activity": PlusModel,
+                "Comment": PlusModel,
+                "PeopleFeed": PlusFeed,
+                "MomentsFeed": PlusFeed,
+                "ActivityFeed": PlusFeed,
+                "CommentFeed": PlusFeed
             },
             "UserInfo": UserInfoModel,
             "CloudStorage": {
