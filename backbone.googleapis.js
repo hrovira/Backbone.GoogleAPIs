@@ -1,8 +1,8 @@
 (function(root, factory) {
   if (typeof exports === "object" && root.require) {
-    module.exports = factory(require("jQuery"), require("underscore"), require("backbone"));
+    module.exports = factory(require("jquery"), require("underscore"), require("backbone"));
   } else if (typeof define === "function" && define.amd) {
-    define([ "jQuery", "underscore", "backbone" ], function($, _, Backbone) {
+    define([ "jquery", "underscore", "backbone" ], function($, _, Backbone) {
       return factory($ || root.$, _ || root._, Backbone || root.Backbone);
     });
   } else {
@@ -198,7 +198,6 @@
                 _.bindAll(this, "childReferences", "parentReferences");
                 _.bindAll(this, "permissions", "revisions", "comments");
             },
-            "url": function() {},
             "copy": function(new_copy, options) {},
             "insert": function(options) {},
             "update": function(options) {},

@@ -46,7 +46,7 @@ This library extends Backbone.js Model to provide CRUD operations compatible wit
 ----------------------
 ### <a name="notes">Notes</a>
 #### Dependencies
-  * jQuery: ~2.0.2
+  * jQuery: ~2.0.3
   * Underscore.js: ~1.4.4
   * Backbone.js: ~1.0.0
   * Require.js: ~2.1.5
