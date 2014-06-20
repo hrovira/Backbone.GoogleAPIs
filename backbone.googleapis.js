@@ -337,11 +337,30 @@
         });
 
         var PlusModel = BasicModel.extend({
-            "kinds": [ "plus#person", "plus#moment", "plus#activity", "plus#comment" ]
+            "kinds": [ "plus#person", "plus#moment", "plus#activity", "plus#comment" ],
+
+            "url": function() {
+                var id = this.get("userId") || "me";
+                if (IsKind(this, "plus#person")) return _iM_.get("PlusUrl") + "/people/" + id;
+                return _iM_.get("PlusUrl") + "/people";
+            }
         });
 
         var PlusFeed = ListModel.extend({
-            "kinds": [ "plus#peopleFeed", "plus#momentsFeed", "plus#activityFeed", "plus#commentFeed" ]
+            "kinds": [ "plus#peopleFeed", "plus#momentsFeed", "plus#activityFeed", "plus#commentFeed" ],
+
+            "url": function() {
+                var id = this.get("userId") || "me";
+                var collection = this.get("collection");
+                if (IsKind(this, "plus#peopleFeed")) return _iM_.get("PlusUrl") + "/people/" + id + "/people/" + (collection || "visible");
+                if (IsKind(this, "plus#activityFeed")) return _iM_.get("PlusUrl") + "/people/" + id + "/activities/" + (collection || "public");
+                if (IsKind(this, "plus#momentsFeed")) return _iM_.get("PlusUrl") + "/people/" + id + "/moments/" + (collection || "vault");
+
+                var activityId = this.get("activityId");
+                if (IsKind(this, "plus#commentFeed")) return _iM_.get("PlusUrl") + "/activities/" + activityId + "/comments";
+
+                return _iM_.get("PlusUrl") + "/people";
+            }
         });
 
         var _InternalModel_ = Backbone.Model.extend({
@@ -439,6 +458,7 @@
             "initialize": function() {
                 this.on("change:GoogleAPIsUrl", function() {
                     this.set("DriveUrl", this.get("GoogleAPIsUrl") + "/drive/v2");
+                    this.set("PlusUrl", this.get("GoogleAPIsUrl") + "/plus/v1");
                     this.set("StorageUrl", this.get("GoogleAPIsUrl") + "/storage/v1/b");
                     this.set("StorageUploadUrl", this.get("GoogleAPIsUrl") + "/upload/storage/v1/b");
                     this.set("UserInfoUrl", this.get("GoogleAPIsUrl") + "/oauth2/v1/userinfo");

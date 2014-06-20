@@ -39,7 +39,13 @@ var resetDisplay = function (ev) {
     } else {
         $(".list-buckets-inputs").hide();
     }
+    if (_.isEqual(ev, "plus-list-comments")) {
+        $(".list-comments-inputs").show().removeClass("hide");
+    } else {
+        $(".list-comments-inputs").hide();
+    }
     $(".buckets-needs-project-id").hide();
+    $(".list-comments-needs-activity-id").hide();
 };
 
 var displayJson = function (m) {
@@ -179,6 +185,72 @@ var listBuckets = function () {
     });
 };
 
+var plusGetPerson = function() {
+    if (modelToggler()) {
+        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#person" });
+    } else {
+        var model = new Backbone.GoogleAPIs.Plus.Person();
+    }
+    model.on("change", displayJson);
+    model.on("error", displayError);
+    model.fetch();
+};
+
+var plusListPeople = function() {
+    if (modelToggler()) {
+        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#peopleFeed" });
+    } else {
+        var model = new Backbone.GoogleAPIs.Plus.PeopleFeed();
+    }
+    model.on("change", displayJson);
+    model.on("error", displayError);
+    model.list();
+};
+
+var plusListActivities = function() {
+    if (modelToggler()) {
+        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#activityFeed" });
+    } else {
+        var model = new Backbone.GoogleAPIs.Plus.ActivityFeed();
+    }
+    model.on("change", displayJson);
+    model.on("error", displayError);
+    model.list();
+};
+
+var plusListMoments = function() {
+    if (modelToggler()) {
+        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#momentsFeed" });
+    } else {
+        var model = new Backbone.GoogleAPIs.Plus.MomentsFeed();
+    }
+    model.on("change", displayJson);
+    model.on("error", displayError);
+    model.list();
+};
+
+var plusListComments = function() {
+    if (modelToggler()) {
+        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#commentFeed" });
+    } else {
+        var model = new Backbone.GoogleAPIs.Plus.CommentFeed();
+    }
+    model.on("change", displayJson);
+    model.on("error", displayError);
+
+    $(".list-plus-comments-btn").on("click", function () {
+        $(".list-comments-needs-activity-id").hide();
+
+        var activityId = $(".plus-activity-id").val() || "";
+        if (_.isEmpty(activityId.trim())) {
+            $(".list-comments-needs-activity-id").show().removeClass("hide");
+            return;
+        }
+        model.set("activityId", activityId);
+        _.defer(model.list);
+    });
+};
+
 var fileInsert = function () {
     var model = new Backbone.GoogleAPIs.Drive.File({
         "title": "Backbone.GoogleAPIs | Test"
@@ -273,6 +345,11 @@ _.defer(function () {
     app.__route("file-trash", fileTrash);
     app.__route("sign-out", signOut);
     app.__route("list-buckets", listBuckets);
+    app.__route("plus-get-person", plusGetPerson);
+    app.__route("plus-list-people", plusListPeople);
+    app.__route("plus-list-activity", plusListActivities);
+    app.__route("plus-list-moments", plusListMoments);
+    app.__route("plus-list-comments", plusListComments);
 
     app.route("goto-https", "goto-https", function() {
         var loca = document["location"];

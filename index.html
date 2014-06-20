@@ -92,12 +92,22 @@
             </div>
             <div class="list-group top-level-anchors">
                 <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
-                    <h5 class="list-group-item-heading">File Operations</h5>
+                    <h5 class="list-group-item-heading">Google Drive Operations</h5>
                 </a>
                 <a class="list-group-item" href="#file-insert">Insert File</a>
                 <a class="list-group-item" href="#file-fetch">Fetch File</a>
                 <a class="list-group-item" href="#file-update">Update File</a>
                 <a class="list-group-item" href="#file-trash">Trash File</a>
+            </div>
+            <div class="list-group top-level-anchors">
+                <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
+                    <h5 class="list-group-item-heading">Google+ Operations</h5>
+                </a>
+                <a class="list-group-item" href="#plus-get-person">Get User Info</a>
+                <a class="list-group-item" href="#plus-list-people">List People</a>
+                <a class="list-group-item" href="#plus-list-activity">List Activities</a>
+                <a class="list-group-item" href="#plus-list-moments">List Moments</a>
+                <a class="list-group-item" href="#plus-list-comments">List Comments</a>
             </div>
             <div class="list-group top-level-anchors">
                 <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
@@ -127,6 +137,18 @@
                             <button type="submit" class="btn btn-success list-buckets-btn">List Buckets</button>
                             <div class="alert alert-warning alert-dismissable buckets-needs-project-id hide">
                                 <strong>Warning!</strong> Project ID is required!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-comments-inputs hide">
+                        <h5>Required Inputs</h5>
+                        <div class="well pre-scrollable">
+                            <input type="text" class="plus-activity-id" placeholder="Activity Id"/>
+                            <p class="help-block"><small>obtain activity ID from <a href="#plus-list-activity">activities listing</a></small></p>
+                            <button type="submit" class="btn btn-success list-plus-comments-btn">List Comments</button>
+                            <div class="alert alert-warning alert-dismissable list-comments-needs-activity-id hide">
+                                <strong>Warning!</strong> Activity ID is required!
                             </div>
                         </div>
                     </div>
