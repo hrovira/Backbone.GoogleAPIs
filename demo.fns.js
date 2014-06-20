@@ -161,7 +161,7 @@ var listBuckets = function () {
     if (modelToggler()) {
         var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "storage#buckets" });
     } else {
-        var model = new Backbone.GoogleAPIs.CloudStorage.Buckets();
+        var model = new Backbone.GoogleAPIs.Storage.Buckets();
     }
     model.on("change", displayJson);
     model.on("error", displayError);

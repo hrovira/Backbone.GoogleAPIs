@@ -385,36 +385,52 @@
             "Model": BasicModel,
             "List": ListModel,
             "Drive": {
-                "About": BasicModel.extend({ "defaults": { "kind": "drive#about" } }),
-                "ChangeList": ChangeListModel,
                 "File": FileModel,
-                "Folder": FolderModel,
                 "FileList": ListModel.extend({ "defaults": { "kind": "drive#fileList" } }),
-                "AppList": ListModel.extend({ "defaults": { "kind": "drive#appList" } })
+                "About": BasicModel.extend({ "defaults": { "kind": "drive#about" } }),
+                "Change": BasicModel.extend({ "defaults": { "kind": "drive#change" } }),
+                "ChangeList": ChangeListModel,
+                "ChildReference": BasicModel.extend({ "defaults": { "kind": "drive#childReference" } }),
+                "ChildList": ListModel.extend({ "defaults": { "kind": "drive#childList" } }),
+                "ParentReference": BasicModel.extend({ "defaults": { "kind": "drive#parentReference" } }),
+                "ParentList": ListModel.extend({ "defaults": { "kind": "drive#parentList" } }),
+                "Permission": BasicModel.extend({ "defaults": { "kind": "drive#permission" } }),
+                "PermissionList": ListModel.extend({ "defaults": { "kind": "drive#permissionList" } }),
+                "Revision": BasicModel.extend({ "defaults": { "kind": "drive#revision" } }),
+                "RevisionList": ListModel.extend({ "defaults": { "kind": "drive#revisionList" } }),
+                "App": BasicModel.extend({ "defaults": { "kind": "drive#app" } }),
+                "AppList": ListModel.extend({ "defaults": { "kind": "drive#appList" } }),
+                "Comment": BasicModel.extend({ "defaults": { "kind": "drive#comment" } }),
+                "CommentList": ListModel.extend({ "defaults": { "kind": "drive#commentList" } }),
+                "CommentReply": BasicModel.extend({ "defaults": { "kind": "drive#commentReply" } }),
+                "CommentReplyList": ListModel.extend({ "defaults": { "kind": "drive#commentReplyList" } }),
+                "Property": BasicModel.extend({ "defaults": { "kind": "drive#property" } }),
+                "PropertyList": ListModel.extend({ "defaults": { "kind": "drive#propertyList" } }),
+                "Folder": FolderModel
             },
             "Plus": {
                 "Person": PlusModel.extend({ "defaults": { "kind": "plus#person" } }),
-                "Moment": PlusModel.extend({ "defaults": { "kind": "plus#moment" } }),
-                "Activity": PlusModel.extend({ "defaults": { "kind": "plus#activity" } }),
-                "Comment": PlusModel.extend({ "defaults": { "kind": "plus#comment" } }),
                 "PeopleFeed": PlusFeed.extend({ "defaults": { "kind": "plus#peopleFeed" } }),
-                "MomentsFeed": PlusFeed.extend({ "defaults": { "kind": "plus#momentsFeed" } }),
+                "Activity": PlusModel.extend({ "defaults": { "kind": "plus#activity" } }),
                 "ActivityFeed": PlusFeed.extend({ "defaults": { "kind": "plus#activityFeed" } }),
-                "CommentFeed": PlusFeed.extend({ "defaults": { "kind": "plus#commentFeed" } })
+                "Comment": PlusModel.extend({ "defaults": { "kind": "plus#comment" } }),
+                "CommentFeed": PlusFeed.extend({ "defaults": { "kind": "plus#commentFeed" } }),
+                "Moment": PlusModel.extend({ "defaults": { "kind": "plus#moment" } }),
+                "MomentsFeed": PlusFeed.extend({ "defaults": { "kind": "plus#momentsFeed" } })
             },
             "UserInfo": BasicModel.extend({
                 "url": function() {
                     return _iM_.get("UserInfoUrl");
                 }
             }),
-            "CloudStorage": {
+            "Storage": {
                 "Bucket": CSModel.extend({ "defaults": { "kind": "storage#bucket" } }),
-                "BucketAccessControl": CSModel.extend({ "defaults": { "kind": "storage#bucketAccessControl" } }),
-                "Object": CSModel.extend({ "defaults": { "kind": "storage#object" } }),
-                "ObjectAccessControl": CSModel.extend({ "defaults": { "kind": "storage#objectAccessControl" } }),
                 "Buckets": CSList.extend({ "defaults": { "kind": "storage#buckets" } }),
-                "BucketAccessControls": CSList.extend({ "defaults": { "kind": "storage#bucketAccessControls" } }),
+                "Object": CSModel.extend({ "defaults": { "kind": "storage#object" } }),
                 "Objects": CSList.extend({ "defaults": { "kind": "storage#objects" } }),
+                "BucketAccessControl": CSModel.extend({ "defaults": { "kind": "storage#bucketAccessControl" } }),
+                "BucketAccessControls": CSList.extend({ "defaults": { "kind": "storage#bucketAccessControls" } }),
+                "ObjectAccessControl": CSModel.extend({ "defaults": { "kind": "storage#objectAccessControl" } }),
                 "ObjectAccessControls": CSList.extend({ "defaults": { "kind": "storage#objectAccessControls" } })
             },
             "BigQuery": {},
