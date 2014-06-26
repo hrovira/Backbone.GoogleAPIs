@@ -198,6 +198,12 @@
                 _.bindAll(this, "childReferences", "parentReferences");
                 _.bindAll(this, "permissions", "revisions", "comments");
             },
+            "url": function() {
+                var fileId = this.get("id");
+                var url = _iM_.get("DriveUrl") + "/files";
+                if (_.isEmpty(fileId)) return url;
+                return url + "/" + fileId;
+            },
             "copy": function(new_copy, options) {},
             "insert": function(options) {
                 options = options || {};
