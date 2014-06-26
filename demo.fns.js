@@ -1,4 +1,34 @@
 // authentication functions
+var signInUser = function (m) {
+    var email = m.get("email");
+    if (_.isEmpty(email)) {
+        $(".signed-out").show().removeClass("hide");
+        return;
+    }
+
+    $(".signed-in").show().removeClass("hide");
+    $(".signed-in-email").html(email);
+
+    var picture = m.get("picture");
+    if (!_.isEmpty(picture)) $(".signed-in-picture").attr("src", picture);
+};
+
+var fetchUserInfo = function (onStartup) {
+    $(".signed-out").hide();
+    $(".signed-in").hide();
+
+    var model = new Backbone.GoogleAPIs.UserInfo({});
+    if (!onStartup) {
+        model.on("error", displayError);
+        model.on("change", displayJson);
+    }
+    model.on("change", signInUser);
+    model.on("error", function () {
+        $(".signed-out").show().removeClass("hide");
+    });
+    model.fetch();
+};
+
 var signinCallback = function (json) {
     json = json || {};
 
@@ -32,22 +62,7 @@ var signOut = function () {
     s["parentNode"].insertBefore(po, s);
 };
 
-// view support functions
-var resetDisplay = function (ev) {
-    if (_.isEqual(ev, "list-buckets")) {
-        $(".list-buckets-inputs").show().removeClass("hide");
-    } else {
-        $(".list-buckets-inputs").hide();
-    }
-    if (_.isEqual(ev, "plus-list-comments")) {
-        $(".list-comments-inputs").show().removeClass("hide");
-    } else {
-        $(".list-comments-inputs").hide();
-    }
-    $(".buckets-needs-project-id").hide();
-    $(".list-comments-needs-activity-id").hide();
-};
-
+// View Support Functions
 var displayJson = function (m) {
     var $el = $(".json-container").empty();
     new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, m.toJSON());
@@ -82,243 +97,6 @@ var modelToggler = function() {
 var FileId = localStorage.getItem("FileId");
 var ChangeList = {};
 
-// example functions
-var signInUser = function (m) {
-    var email = m.get("email");
-    if (_.isEmpty(email)) {
-        $(".signed-out").show().removeClass("hide");
-        return;
-    }
-
-    $(".signed-in").show().removeClass("hide");
-
-    $(".signed-in-email").html(email);
-
-    var picture = m.get("picture");
-    if (!_.isEmpty(picture)) $(".signed-in-picture").attr("src", picture);
-};
-
-var fetchUserInfo = function (onStartup) {
-    $(".signed-out").hide();
-    $(".signed-in").hide();
-
-    var model = new Backbone.GoogleAPIs.UserInfo({});
-    if (!onStartup) {
-        model.on("error", displayError);
-        model.on("change", displayJson);
-    }
-    model.on("change", signInUser);
-    model.on("error", function () {
-        $(".signed-out").show().removeClass("hide");
-    });
-    model.fetch();
-};
-
-var fetchAbout = function () {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#about" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Drive.About();
-    }
-
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.fetch();
-};
-
-var pollChangeList = function () {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#changeList" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Drive.ChangeList();
-    }
-
-    ChangeList = model;
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.poll();
-};
-
-var listApps = function () {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#appList" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Drive.AppList();
-    }
-
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.list();
-};
-
-var listFolders = function () {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#fileList" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Drive.FileList();
-    }
-
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.list({ "?": { "q": "mimeType='application/vnd.google-apps.folder'" } });
-};
-
-var listBuckets = function () {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "storage#buckets" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Storage.Buckets();
-    }
-    model.on("change", displayJson);
-    model.on("error", displayError);
-
-    $(".list-buckets-btn").on("click", function () {
-        $(".buckets-needs-project-id").hide();
-
-        var project_id = $(".buckets-project-id").val() || "";
-        if (_.isEmpty(project_id.trim())) {
-            $(".buckets-needs-project-id").show().removeClass("hide");
-            return;
-        }
-        model.set("projectId", project_id);
-        _.defer(model.list);
-    });
-};
-
-var plusGetPerson = function() {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#person" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Plus.Person();
-    }
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.fetch();
-};
-
-var plusListPeople = function() {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#peopleFeed" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Plus.PeopleFeed();
-    }
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.list();
-};
-
-var plusListActivities = function() {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#activityFeed" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Plus.ActivityFeed();
-    }
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.list();
-};
-
-var plusListMoments = function() {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#momentsFeed" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Plus.MomentsFeed();
-    }
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.list();
-};
-
-var plusListComments = function() {
-    if (modelToggler()) {
-        var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#commentFeed" });
-    } else {
-        var model = new Backbone.GoogleAPIs.Plus.CommentFeed();
-    }
-    model.on("change", displayJson);
-    model.on("error", displayError);
-
-    $(".list-plus-comments-btn").on("click", function () {
-        $(".list-comments-needs-activity-id").hide();
-
-        var activityId = $(".plus-activity-id").val() || "";
-        if (_.isEmpty(activityId.trim())) {
-            $(".list-comments-needs-activity-id").show().removeClass("hide");
-            return;
-        }
-        model.set("activityId", activityId);
-        _.defer(model.list);
-    });
-};
-
-var fileInsert = function () {
-    var model = new Backbone.GoogleAPIs.Drive.File({
-        "title": "Backbone.GoogleAPIs | Test"
-    });
-    model.on("change:id", function (m) {
-        FileId = m.get("id");
-        localStorage.setItem("FileId", FileId);
-    });
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.insert();
-};
-
-var fileFetch = function () {
-    if (!FileId) return $(".error-container").html("Insert File First");
-
-    var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.fetch();
-};
-
-var fileUpdate = function () {
-    if (!FileId) return $(".error-container").html("Insert File First");
-
-    var model = new Backbone.GoogleAPIs.Drive.File();
-    model.set("id", FileId);
-    model.set("title", "Backbone.GoogleAPIs | Test | New Title");
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.update();
-};
-
-var fileTouch = function () {
-    if (!FileId) return $(".error-container").html("Insert File First");
-
-    var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.touch();
-};
-
-var fileTrash = function () {
-    if (!FileId) return $(".error-container").html("Insert File First");
-
-    var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.trash();
-};
-
-var fileUnTrash = function () {
-    if (!FileId) return $(".error-container").html("Insert File First");
-
-    var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
-    model.on("change", displayJson);
-    model.on("error", displayError);
-    model.untrash();
-};
-
-var fileEmptyTrash = function () {
-    var trash = new Backbone.GoogleAPIs.Drive.Trash();
-    trash.on("change", displayJson);
-    trash.on("error", displayError);
-    trash.empty();
-};
-
-// bootstraps example functions
 _.defer(function () {
     var App = Backbone.Router.extend({
         "__route": function (name, target_fn) {
@@ -350,36 +128,36 @@ _.defer(function () {
             this.route(name, name, wrapping_fn);
         }
     });
+
     app = new App();
-    app.on("route", resetDisplay);
+
+    // resets buckets inputs
     app.on("route", function (href) {
-        // toggles active list item
+        if (_.isEqual(href, "list-buckets")) {
+            $(".list-buckets-inputs").show().removeClass("hide");
+        } else {
+            $(".list-buckets-inputs").hide();
+        }
+        $(".buckets-needs-project-id").hide();
+    });
+    // resets comments inputs
+    app.on("route", function (href) {
+        if (_.isEqual(href, "plus-list-comments")) {
+            $(".list-comments-inputs").show().removeClass("hide");
+        } else {
+            $(".list-comments-inputs").hide();
+        }
+        $(".list-comments-needs-activity-id").hide();
+    });
+    // toggles active list item
+    app.on("route", function (href) {
         _.each($(".top-level-anchors").find("a.list-group-item"), function (item) {
             $(item).removeClass("active");
             if (_.isEqual($(item).attr("href"), "#" + href)) $(item).addClass("active");
         });
     });
 
-    app.__route("userinfo", fetchUserInfo);
-    app.__route("about", fetchAbout);
-    app.__route("list-apps", listApps);
-    app.__route("list-folders", listFolders);
-    app.__route("list-changes", pollChangeList);
-    app.__route("file-insert", fileInsert);
-    app.__route("file-fetch", fileFetch);
-    app.__route("file-update", fileUpdate);
-    app.__route("file-touch", fileTouch);
-    app.__route("file-trash", fileTrash);
-    app.__route("file-untrash", fileUnTrash);
-    app.__route("file-empty-trash", fileEmptyTrash);
-    app.__route("sign-out", signOut);
-    app.__route("list-buckets", listBuckets);
-    app.__route("plus-get-person", plusGetPerson);
-    app.__route("plus-list-people", plusListPeople);
-    app.__route("plus-list-activity", plusListActivities);
-    app.__route("plus-list-moments", plusListMoments);
-    app.__route("plus-list-comments", plusListComments);
-
+    // change to HTTPS
     app.route("goto-https", "goto-https", function() {
         var loca = document["location"];
         document["location"] = "https:" + (loca["host"] || loca["hostname"]) + loca["pathname"];
@@ -387,6 +165,198 @@ _.defer(function () {
     if (document.location.protocol === "https:") {
         $(".goto-https-container").hide();
     }
+
+    app.__route("sign-out", signOut);
+
+    // bootstraps EXAMPLE FUNCTIONS
+    app.__route("userinfo", fetchUserInfo);
+    app.__route("about", function () {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#about" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Drive.About();
+        }
+
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.fetch();
+    });
+    app.__route("list-apps", function () {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#appList" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Drive.AppList();
+        }
+
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.list();
+    });
+    app.__route("list-folders", function () {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#fileList" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Drive.FileList();
+        }
+
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.list({ "?": { "q": "mimeType='application/vnd.google-apps.folder'" } });
+    });
+    app.__route("list-changes", function () {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#changeList" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Drive.ChangeList();
+        }
+
+        ChangeList = model;
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.poll();
+    });
+    app.__route("file-insert", function () {
+        var model = new Backbone.GoogleAPIs.Drive.File({
+            "title": "Backbone.GoogleAPIs | Test"
+        });
+        model.on("change:id", function (m) {
+            FileId = m.get("id");
+            localStorage.setItem("FileId", FileId);
+        });
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.insert();
+    });
+    app.__route("file-fetch", function () {
+        if (!FileId) return $(".error-container").html("Insert File First");
+
+        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.fetch();
+    });
+    app.__route("file-update", function () {
+        if (!FileId) return $(".error-container").html("Insert File First");
+
+        var model = new Backbone.GoogleAPIs.Drive.File();
+        model.set("id", FileId);
+        model.set("title", "Backbone.GoogleAPIs | Test | New Title");
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.update();
+    });
+    app.__route("file-touch", function () {
+        if (!FileId) return $(".error-container").html("Insert File First");
+
+        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.touch();
+    });
+    app.__route("file-trash", function () {
+        if (!FileId) return $(".error-container").html("Insert File First");
+
+        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.trash();
+    });
+    app.__route("file-untrash", function () {
+        if (!FileId) return $(".error-container").html("Insert File First");
+
+        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.untrash();
+    });
+    app.__route("file-empty-trash", function () {
+        var trash = new Backbone.GoogleAPIs.Drive.Trash();
+        trash.on("change", displayJson);
+        trash.on("error", displayError);
+        trash.empty();
+    });
+    app.__route("list-buckets", function () {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "storage#buckets" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Storage.Buckets();
+        }
+        model.on("change", displayJson);
+        model.on("error", displayError);
+
+        $(".list-buckets-btn").on("click", function () {
+            $(".buckets-needs-project-id").hide();
+
+            var project_id = $(".buckets-project-id").val() || "";
+            if (_.isEmpty(project_id.trim())) {
+                $(".buckets-needs-project-id").show().removeClass("hide");
+                return;
+            }
+            model.set("projectId", project_id);
+            _.defer(model.list);
+        });
+    });
+    app.__route("plus-get-person", function() {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#person" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Plus.Person();
+        }
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.fetch();
+    });
+    app.__route("plus-list-people", function() {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#peopleFeed" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Plus.PeopleFeed();
+        }
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.list();
+    });
+    app.__route("plus-list-activity", function() {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#activityFeed" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Plus.ActivityFeed();
+        }
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.list();
+    });
+    app.__route("plus-list-moments", function() {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#momentsFeed" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Plus.MomentsFeed();
+        }
+        model.on("change", displayJson);
+        model.on("error", displayError);
+        model.list();
+    });
+    app.__route("plus-list-comments", function() {
+        if (modelToggler()) {
+            var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#commentFeed" });
+        } else {
+            var model = new Backbone.GoogleAPIs.Plus.CommentFeed();
+        }
+        model.on("change", displayJson);
+        model.on("error", displayError);
+
+        $(".list-plus-comments-btn").on("click", function () {
+            $(".list-comments-needs-activity-id").hide();
+
+            var activityId = $(".plus-activity-id").val() || "";
+            if (_.isEmpty(activityId.trim())) {
+                $(".list-comments-needs-activity-id").show().removeClass("hide");
+                return;
+            }
+            model.set("activityId", activityId);
+            _.defer(model.list);
+        });
+    });
 });
 
 // displays JS dependencies
