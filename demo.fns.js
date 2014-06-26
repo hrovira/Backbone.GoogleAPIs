@@ -83,16 +83,6 @@ var displayError = function (model, response) {
     }
 };
 
-var modelToggler = function() {
-    if (_.isEqual(localStorage.getItem("model.toggler"), "on")) {
-        localStorage.removeItem("model.toggler");
-        return true;
-    }
-
-    localStorage.setItem("model.toggler", "on");
-    return false;
-};
-
 // shared among File operations after insert
 var FileId = localStorage.getItem("FileId");
 var ChangeList = {};
@@ -112,16 +102,15 @@ _.defer(function () {
                 var parts = [];
 
                 if (strFn.indexOf("FileId") >= 0) parts.push("var FileId = \"" + (FileId || "") + "\";");
+                if (strFn.indexOf("modeltype-selector") >= 0) {
+                    parts.push("// localStorage.getItem(\"modeltype-selector\") -> '" + localStorage.getItem("modeltype-selector") + "'");
+                }
                 parts.push("" + strFn);
                 $(".code-container").html(parts.join("\n\n"));
 
                 var auxparts = [];
                 if (strFn.indexOf("displayJson") >= 0) auxparts.push("var displayJson = " + displayJson + ";");
                 if (strFn.indexOf("displayError") >= 0) auxparts.push("var displayError = " + displayError + ";");
-                if (strFn.indexOf("modelToggler") >= 0) {
-                    auxparts.push("// value of 'localStorage.getItem(\"model.toggler\")' is '" + (localStorage.getItem("model.toggler") || "") + "';");
-                    auxparts.push("var modelToggler = " + modelToggler + ";");
-                }
                 $(".aux-code-container").html(auxparts.join("\n\n"));
             };
 
@@ -157,6 +146,25 @@ _.defer(function () {
         });
     });
 
+    // configures buttons for controlling model instantiation strategy
+    var markAsActive = function(e) {
+        $(".btn-modeltype-selector").removeClass("active btn-success");
+        _.each($(".btn-modeltype-selector"), function(e) {
+            var oldType = localStorage.getItem("modeltype-selector") || "model-factory";
+            var newType = $(e).data("type");
+            if (newType === oldType) $(e).addClass("active btn-success");
+        });
+    };
+
+    app.on("route", markAsActive);
+    $(".btn-modeltype-selector").on("click", function(e) {
+        localStorage.setItem("modeltype-selector", $(e.target).data("type"));
+        _.defer(markAsActive);
+        _.defer(function() {
+            Backbone.history.loadUrl(Backbone.history.fragment)
+        });
+    });
+
     // change to HTTPS
     app.route("goto-https", "goto-https", function() {
         var loca = document["location"];
@@ -171,7 +179,7 @@ _.defer(function () {
     // bootstraps EXAMPLE FUNCTIONS
     app.__route("userinfo", fetchUserInfo);
     app.__route("about", function () {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#about" });
         } else {
             var model = new Backbone.GoogleAPIs.Drive.About();
@@ -182,7 +190,7 @@ _.defer(function () {
         model.fetch();
     });
     app.__route("list-apps", function () {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#appList" });
         } else {
             var model = new Backbone.GoogleAPIs.Drive.AppList();
@@ -193,7 +201,7 @@ _.defer(function () {
         model.list();
     });
     app.__route("list-folders", function () {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#fileList" });
         } else {
             var model = new Backbone.GoogleAPIs.Drive.FileList();
@@ -204,7 +212,7 @@ _.defer(function () {
         model.list({ "?": { "q": "mimeType='application/vnd.google-apps.folder'" } });
     });
     app.__route("list-changes", function () {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "drive#changeList" });
         } else {
             var model = new Backbone.GoogleAPIs.Drive.ChangeList();
@@ -276,7 +284,7 @@ _.defer(function () {
         trash.empty();
     });
     app.__route("list-buckets", function () {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "storage#buckets" });
         } else {
             var model = new Backbone.GoogleAPIs.Storage.Buckets();
@@ -297,7 +305,7 @@ _.defer(function () {
         });
     });
     app.__route("plus-get-person", function() {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#person" });
         } else {
             var model = new Backbone.GoogleAPIs.Plus.Person();
@@ -307,7 +315,7 @@ _.defer(function () {
         model.fetch();
     });
     app.__route("plus-list-people", function() {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#peopleFeed" });
         } else {
             var model = new Backbone.GoogleAPIs.Plus.PeopleFeed();
@@ -317,7 +325,7 @@ _.defer(function () {
         model.list();
     });
     app.__route("plus-list-activity", function() {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#activityFeed" });
         } else {
             var model = new Backbone.GoogleAPIs.Plus.ActivityFeed();
@@ -327,7 +335,7 @@ _.defer(function () {
         model.list();
     });
     app.__route("plus-list-moments", function() {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#momentsFeed" });
         } else {
             var model = new Backbone.GoogleAPIs.Plus.MomentsFeed();
@@ -337,7 +345,7 @@ _.defer(function () {
         model.list();
     });
     app.__route("plus-list-comments", function() {
-        if (modelToggler()) {
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
             var model = Backbone.GoogleAPIs.ModelFactory({ "kind": "plus#commentFeed" });
         } else {
             var model = new Backbone.GoogleAPIs.Plus.CommentFeed();
