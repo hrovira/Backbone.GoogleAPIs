@@ -84,7 +84,6 @@ var displayError = function (model, response) {
 };
 
 // shared among File operations after insert
-var FileId = localStorage.getItem("FileId");
 var ChangeList = {};
 
 _.defer(function () {
@@ -101,9 +100,8 @@ _.defer(function () {
                 var strFn = "" + target_fn;
                 var parts = [];
 
-                if (strFn.indexOf("FileId") >= 0) parts.push("var FileId = \"" + (FileId || "") + "\";");
-                if (strFn.indexOf("modeltype-selector") >= 0) {
-                    parts.push("// localStorage.getItem(\"modeltype-selector\") -> '" + localStorage.getItem("modeltype-selector") + "'");
+                if (strFn.indexOf("localStorage") >= 0) {
+                    parts.push("// localStorage -> " + JSON.stringify(localStorage, undefined, 2));
                 }
                 parts.push("" + strFn);
                 $(".code-container").html(parts.join("\n\n"));
@@ -150,7 +148,7 @@ _.defer(function () {
     var markAsActive = function(e) {
         $(".btn-modeltype-selector").removeClass("active btn-success");
         _.each($(".btn-modeltype-selector"), function(e) {
-            var oldType = localStorage.getItem("modeltype-selector") || "model-factory";
+            var oldType = localStorage.getItem("modeltype-selector");
             var newType = $(e).data("type");
             if (newType === oldType) $(e).addClass("active btn-success");
         });
@@ -224,55 +222,68 @@ _.defer(function () {
         model.poll();
     });
     app.__route("file-insert", function () {
-        var model = new Backbone.GoogleAPIs.Drive.File({
-            "title": "Backbone.GoogleAPIs | Test"
-        });
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
+            var model = Backbone.GoogleAPIs.ModelFactory({
+                "kind": "drive#file",
+                "title": "Backbone.GoogleAPIs | Test : Model Factory"
+            });
+        } else {
+            var model = new Backbone.GoogleAPIs.Drive.File({
+                "title": "Backbone.GoogleAPIs | Test : Class Hierarchy"
+            });
+        }
+
         model.on("change:id", function (m) {
-            FileId = m.get("id");
-            localStorage.setItem("FileId", FileId);
+            localStorage.setItem("file-insert-id", m.get("id"));
         });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.insert();
     });
     app.__route("file-fetch", function () {
-        if (!FileId) return $(".error-container").html("Insert File First");
+        if (localStorage.getItem("modeltype-selector") === "model-factory") {
+            var model = Backbone.GoogleAPIs.ModelFactory({
+                "kind": "drive#file",
+                "id": localStorage.getItem("file-insert-id")
+            });
+        } else {
+            var model = new Backbone.GoogleAPIs.Drive.File({
+                "id": localStorage.getItem("file-insert-id")
+            });
+        }
 
-        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.fetch();
     });
     app.__route("file-update", function () {
-        if (!FileId) return $(".error-container").html("Insert File First");
-
         var model = new Backbone.GoogleAPIs.Drive.File();
-        model.set("id", FileId);
+        model.set("id", localStorage.getItem("file-insert-id"));
         model.set("title", "Backbone.GoogleAPIs | Test | New Title");
         model.on("change", displayJson);
         model.on("error", displayError);
         model.update();
     });
     app.__route("file-touch", function () {
-        if (!FileId) return $(".error-container").html("Insert File First");
-
-        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+        var model = new Backbone.GoogleAPIs.Drive.File({
+            "id": localStorage.getItem("file-insert-id")
+        });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.touch();
     });
     app.__route("file-trash", function () {
-        if (!FileId) return $(".error-container").html("Insert File First");
-
-        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+        var model = new Backbone.GoogleAPIs.Drive.File({
+            "id": localStorage.getItem("file-insert-id")
+        });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.trash();
     });
     app.__route("file-untrash", function () {
-        if (!FileId) return $(".error-container").html("Insert File First");
-
-        var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+        var model = new Backbone.GoogleAPIs.Drive.File({
+            "id": localStorage.getItem("file-insert-id")
+        });
         model.on("change", displayJson);
         model.on("error", displayError);
         model.untrash();
