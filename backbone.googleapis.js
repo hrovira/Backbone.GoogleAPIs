@@ -225,14 +225,41 @@
                 });
             },
             "update": function(options) {},
-            "touch": function(options) {},
-            "trash": function(options) {},
-            "untrash": function(options) {},
+            "touch": function(options) {
+                this.__simple_post(options, "touch");
+            },
+            "trash": function(options) {
+                this.__simple_post(options, "trash");
+            },
+            "untrash": function(options) {
+                this.__simple_post(options, "untrash");
+            },
             "childReferences": function() {},
             "parentReferences": function() {},
             "permissions": function() {},
             "revisions": function() {},
-            "comments": function() {}
+            "comments": function() {},
+
+            "__simple_post": function (options, verb) {
+                if (!verb) return;
+                if (!this.get("id")) return;
+                options = options || {};
+
+                return $.ajax({
+                    "method": "POST",
+                    "url": this.url() + "/" + verb,
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                    "dataType": "json",
+                    "success": function (json) {
+                        this.set(json);
+                        this.trigger(verb + "ed", json);
+                    },
+                    "error": function(e) {
+                        this.trigger("error", this, e);
+                    },
+                    "context": this
+                });
+            }
         });
 
         var FolderModel = FileModel.extend({
@@ -449,7 +476,26 @@
                 "CommentReplyList": ListModel.extend({ "defaults": { "kind": "drive#commentReplyList" } }),
                 "Property": BasicModel.extend({ "defaults": { "kind": "drive#property" } }),
                 "PropertyList": ListModel.extend({ "defaults": { "kind": "drive#propertyList" } }),
-                "Folder": FolderModel
+                "Folder": FolderModel,
+                "Trash": Backbone.Model.extend({
+                    "empty": function(options) {
+                        options = options || {};
+
+                        return $.ajax({
+                            "method": "DELETE",
+                            "url": _iM_.get("DriveUrl") + "/files/trash",
+                            "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                            "dataType": "json",
+                            "success": function () {
+                                this.set({ "empty": true });
+                            },
+                            "error": function(e) {
+                                this.trigger("error", this, e);
+                            },
+                            "context": this
+                        });
+                    }
+                })
             },
             "Plus": {
                 "Person": PlusModel.extend({ "defaults": { "kind": "plus#person" } }),

@@ -284,6 +284,15 @@ var fileUpdate = function () {
     model.update();
 };
 
+var fileTouch = function () {
+    if (!FileId) return $(".error-container").html("Insert File First");
+
+    var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+    model.on("change", displayJson);
+    model.on("error", displayError);
+    model.touch();
+};
+
 var fileTrash = function () {
     if (!FileId) return $(".error-container").html("Insert File First");
 
@@ -291,6 +300,22 @@ var fileTrash = function () {
     model.on("change", displayJson);
     model.on("error", displayError);
     model.trash();
+};
+
+var fileUnTrash = function () {
+    if (!FileId) return $(".error-container").html("Insert File First");
+
+    var model = new Backbone.GoogleAPIs.Drive.File({ "id": FileId });
+    model.on("change", displayJson);
+    model.on("error", displayError);
+    model.untrash();
+};
+
+var fileEmptyTrash = function () {
+    var trash = new Backbone.GoogleAPIs.Drive.Trash();
+    trash.on("change", displayJson);
+    trash.on("error", displayError);
+    trash.empty();
 };
 
 // bootstraps example functions
@@ -343,7 +368,10 @@ _.defer(function () {
     app.__route("file-insert", fileInsert);
     app.__route("file-fetch", fileFetch);
     app.__route("file-update", fileUpdate);
+    app.__route("file-touch", fileTouch);
     app.__route("file-trash", fileTrash);
+    app.__route("file-untrash", fileUnTrash);
+    app.__route("file-empty-trash", fileEmptyTrash);
     app.__route("sign-out", signOut);
     app.__route("list-buckets", listBuckets);
     app.__route("plus-get-person", plusGetPerson);
