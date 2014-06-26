@@ -199,7 +199,25 @@
                 _.bindAll(this, "permissions", "revisions", "comments");
             },
             "copy": function(new_copy, options) {},
-            "insert": function(options) {},
+            "insert": function(options) {
+                options = options || {};
+
+                return $.ajax({
+                    "method": "POST",
+                    "url": _iM_.get("DriveUrl") + "/files?uploadType=multipart",
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                    "contentType": "application/json",
+                    "dataType": "json",
+                    "data": JSON.stringify(this.toJSON(), undefined, 2),
+                    "success": function(json) {
+                        this.set(json);
+                    },
+                    "error": function(e) {
+                        this.trigger("error", this, e);
+                    },
+                    "context": this
+                });
+            },
             "update": function(options) {},
             "touch": function(options) {},
             "trash": function(options) {},
