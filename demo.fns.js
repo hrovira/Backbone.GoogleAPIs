@@ -79,7 +79,7 @@ var modelToggler = function() {
 };
 
 // shared among File operations after insert
-var FileId;
+var FileId = localStorage.getItem("FileId");
 var ChangeList = {};
 
 // example functions
@@ -257,6 +257,7 @@ var fileInsert = function () {
     });
     model.on("change:id", function (m) {
         FileId = m.get("id");
+        localStorage.setItem("FileId", FileId);
     });
     model.on("change", displayJson);
     model.on("error", displayError);
