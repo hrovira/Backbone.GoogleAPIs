@@ -1,8 +1,8 @@
 (function(root, factory) {
   if (typeof exports === "object" && root.require) {
-    module.exports = factory(require("jQuery"), require("underscore"), require("backbone"));
+    module.exports = factory(require("jquery"), require("underscore"), require("backbone"));
   } else if (typeof define === "function" && define.amd) {
-    define([ "jQuery", "underscore", "backbone" ], function($, _, Backbone) {
+    define([ "jquery", "underscore", "backbone" ], function($, _, Backbone) {
       return factory($ || root.$, _ || root._, Backbone || root.Backbone);
     });
   } else {
@@ -198,18 +198,68 @@
                 _.bindAll(this, "childReferences", "parentReferences");
                 _.bindAll(this, "permissions", "revisions", "comments");
             },
-            "url": function() {},
+            "url": function() {
+                var fileId = this.get("id");
+                var url = _iM_.get("DriveUrl") + "/files";
+                if (_.isEmpty(fileId)) return url;
+                return url + "/" + fileId;
+            },
             "copy": function(new_copy, options) {},
-            "insert": function(options) {},
+            "insert": function(options) {
+                options = options || {};
+
+                return $.ajax({
+                    "method": "POST",
+                    "url": _iM_.get("DriveUrl") + "/files?uploadType=multipart",
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                    "contentType": "application/json",
+                    "dataType": "json",
+                    "data": JSON.stringify(this.toJSON(), undefined, 2),
+                    "success": function(json) {
+                        this.set(json);
+                    },
+                    "error": function(e) {
+                        this.trigger("error", this, e);
+                    },
+                    "context": this
+                });
+            },
             "update": function(options) {},
-            "touch": function(options) {},
-            "trash": function(options) {},
-            "untrash": function(options) {},
+            "touch": function(options) {
+                this.__simple_post(options, "touch");
+            },
+            "trash": function(options) {
+                this.__simple_post(options, "trash");
+            },
+            "untrash": function(options) {
+                this.__simple_post(options, "untrash");
+            },
             "childReferences": function() {},
             "parentReferences": function() {},
             "permissions": function() {},
             "revisions": function() {},
-            "comments": function() {}
+            "comments": function() {},
+
+            "__simple_post": function (options, verb) {
+                if (!verb) return;
+                if (!this.get("id")) return;
+                options = options || {};
+
+                return $.ajax({
+                    "method": "POST",
+                    "url": this.url() + "/" + verb,
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                    "dataType": "json",
+                    "success": function (json) {
+                        this.set(json);
+                        this.trigger(verb + "ed", json);
+                    },
+                    "error": function(e) {
+                        this.trigger("error", this, e);
+                    },
+                    "context": this
+                });
+            }
         });
 
         var FolderModel = FileModel.extend({
@@ -338,11 +388,30 @@
         });
 
         var PlusModel = BasicModel.extend({
-            "kinds": [ "plus#person", "plus#moment", "plus#activity", "plus#comment" ]
+            "kinds": [ "plus#person", "plus#moment", "plus#activity", "plus#comment" ],
+
+            "url": function() {
+                var id = this.get("userId") || "me";
+                if (IsKind(this, "plus#person")) return _iM_.get("PlusUrl") + "/people/" + id;
+                return _iM_.get("PlusUrl") + "/people";
+            }
         });
 
         var PlusFeed = ListModel.extend({
-            "kinds": [ "plus#peopleFeed", "plus#momentsFeed", "plus#activityFeed", "plus#commentFeed" ]
+            "kinds": [ "plus#peopleFeed", "plus#momentsFeed", "plus#activityFeed", "plus#commentFeed" ],
+
+            "url": function() {
+                var id = this.get("userId") || "me";
+                var collection = this.get("collection");
+                if (IsKind(this, "plus#peopleFeed")) return _iM_.get("PlusUrl") + "/people/" + id + "/people/" + (collection || "visible");
+                if (IsKind(this, "plus#activityFeed")) return _iM_.get("PlusUrl") + "/people/" + id + "/activities/" + (collection || "public");
+                if (IsKind(this, "plus#momentsFeed")) return _iM_.get("PlusUrl") + "/people/" + id + "/moments/" + (collection || "vault");
+
+                var activityId = this.get("activityId");
+                if (IsKind(this, "plus#commentFeed")) return _iM_.get("PlusUrl") + "/activities/" + activityId + "/comments";
+
+                return _iM_.get("PlusUrl") + "/people";
+            }
         });
 
         var _InternalModel_ = Backbone.Model.extend({
@@ -386,36 +455,71 @@
             "Model": BasicModel,
             "List": ListModel,
             "Drive": {
-                "About": BasicModel.extend({ "defaults": { "kind": "drive#about" } }),
-                "ChangeList": ChangeListModel,
                 "File": FileModel,
-                "Folder": FolderModel,
                 "FileList": ListModel.extend({ "defaults": { "kind": "drive#fileList" } }),
-                "AppList": ListModel.extend({ "defaults": { "kind": "drive#appList" } })
+                "About": BasicModel.extend({ "defaults": { "kind": "drive#about" } }),
+                "Change": BasicModel.extend({ "defaults": { "kind": "drive#change" } }),
+                "ChangeList": ChangeListModel,
+                "ChildReference": BasicModel.extend({ "defaults": { "kind": "drive#childReference" } }),
+                "ChildList": ListModel.extend({ "defaults": { "kind": "drive#childList" } }),
+                "ParentReference": BasicModel.extend({ "defaults": { "kind": "drive#parentReference" } }),
+                "ParentList": ListModel.extend({ "defaults": { "kind": "drive#parentList" } }),
+                "Permission": BasicModel.extend({ "defaults": { "kind": "drive#permission" } }),
+                "PermissionList": ListModel.extend({ "defaults": { "kind": "drive#permissionList" } }),
+                "Revision": BasicModel.extend({ "defaults": { "kind": "drive#revision" } }),
+                "RevisionList": ListModel.extend({ "defaults": { "kind": "drive#revisionList" } }),
+                "App": BasicModel.extend({ "defaults": { "kind": "drive#app" } }),
+                "AppList": ListModel.extend({ "defaults": { "kind": "drive#appList" } }),
+                "Comment": BasicModel.extend({ "defaults": { "kind": "drive#comment" } }),
+                "CommentList": ListModel.extend({ "defaults": { "kind": "drive#commentList" } }),
+                "CommentReply": BasicModel.extend({ "defaults": { "kind": "drive#commentReply" } }),
+                "CommentReplyList": ListModel.extend({ "defaults": { "kind": "drive#commentReplyList" } }),
+                "Property": BasicModel.extend({ "defaults": { "kind": "drive#property" } }),
+                "PropertyList": ListModel.extend({ "defaults": { "kind": "drive#propertyList" } }),
+                "Folder": FolderModel,
+                "Trash": Backbone.Model.extend({
+                    "empty": function(options) {
+                        options = options || {};
+
+                        return $.ajax({
+                            "method": "DELETE",
+                            "url": _iM_.get("DriveUrl") + "/files/trash",
+                            "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                            "dataType": "json",
+                            "success": function () {
+                                this.set({ "empty": true });
+                            },
+                            "error": function(e) {
+                                this.trigger("error", this, e);
+                            },
+                            "context": this
+                        });
+                    }
+                })
             },
             "Plus": {
                 "Person": PlusModel.extend({ "defaults": { "kind": "plus#person" } }),
-                "Moment": PlusModel.extend({ "defaults": { "kind": "plus#moment" } }),
-                "Activity": PlusModel.extend({ "defaults": { "kind": "plus#activity" } }),
-                "Comment": PlusModel.extend({ "defaults": { "kind": "plus#comment" } }),
                 "PeopleFeed": PlusFeed.extend({ "defaults": { "kind": "plus#peopleFeed" } }),
-                "MomentsFeed": PlusFeed.extend({ "defaults": { "kind": "plus#momentsFeed" } }),
+                "Activity": PlusModel.extend({ "defaults": { "kind": "plus#activity" } }),
                 "ActivityFeed": PlusFeed.extend({ "defaults": { "kind": "plus#activityFeed" } }),
-                "CommentFeed": PlusFeed.extend({ "defaults": { "kind": "plus#commentFeed" } })
+                "Comment": PlusModel.extend({ "defaults": { "kind": "plus#comment" } }),
+                "CommentFeed": PlusFeed.extend({ "defaults": { "kind": "plus#commentFeed" } }),
+                "Moment": PlusModel.extend({ "defaults": { "kind": "plus#moment" } }),
+                "MomentsFeed": PlusFeed.extend({ "defaults": { "kind": "plus#momentsFeed" } })
             },
             "UserInfo": BasicModel.extend({
                 "url": function() {
                     return _iM_.get("UserInfoUrl");
                 }
             }),
-            "CloudStorage": {
+            "Storage": {
                 "Bucket": CSModel.extend({ "defaults": { "kind": "storage#bucket" } }),
-                "BucketAccessControl": CSModel.extend({ "defaults": { "kind": "storage#bucketAccessControl" } }),
-                "Object": CSModel.extend({ "defaults": { "kind": "storage#object" } }),
-                "ObjectAccessControl": CSModel.extend({ "defaults": { "kind": "storage#objectAccessControl" } }),
                 "Buckets": CSList.extend({ "defaults": { "kind": "storage#buckets" } }),
-                "BucketAccessControls": CSList.extend({ "defaults": { "kind": "storage#bucketAccessControls" } }),
+                "Object": CSModel.extend({ "defaults": { "kind": "storage#object" } }),
                 "Objects": CSList.extend({ "defaults": { "kind": "storage#objects" } }),
+                "BucketAccessControl": CSModel.extend({ "defaults": { "kind": "storage#bucketAccessControl" } }),
+                "BucketAccessControls": CSList.extend({ "defaults": { "kind": "storage#bucketAccessControls" } }),
+                "ObjectAccessControl": CSModel.extend({ "defaults": { "kind": "storage#objectAccessControl" } }),
                 "ObjectAccessControls": CSList.extend({ "defaults": { "kind": "storage#objectAccessControls" } })
             },
             "BigQuery": {},
@@ -424,6 +528,7 @@
             "initialize": function() {
                 this.on("change:GoogleAPIsUrl", function() {
                     this.set("DriveUrl", this.get("GoogleAPIsUrl") + "/drive/v2");
+                    this.set("PlusUrl", this.get("GoogleAPIsUrl") + "/plus/v1");
                     this.set("StorageUrl", this.get("GoogleAPIsUrl") + "/storage/v1/b");
                     this.set("StorageUploadUrl", this.get("GoogleAPIsUrl") + "/upload/storage/v1/b");
                     this.set("UserInfoUrl", this.get("GoogleAPIsUrl") + "/oauth2/v1/userinfo");

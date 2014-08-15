@@ -15,7 +15,7 @@
     <meta name="google-signin-cookiepolicy" content="single_host_origin" />
     <meta name="google-signin-callback" content="signinCallback" />
     <meta name="google-signin-requestvisibleactions" content="https://schemas.google.com/AddActivity" />
-    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/devstorage.read_write" />
+    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/devstorage.read_write" />
 
     <title>Backbone.GoogleAPIs | Test Console</title>
 
@@ -30,6 +30,7 @@
 
     <script type="text/javascript" src="backbone.googleapis.js"></script>
     <script type="text/javascript" src="demo.fns.js"></script>
+    <script type="text/javascript" src="demo.fns.router.js"></script>
 
     <script type="text/javascript" async="true" src="https://apis.google.com/js/client:plusone.js"></script>
 </head>
@@ -92,12 +93,25 @@
             </div>
             <div class="list-group top-level-anchors">
                 <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
-                    <h5 class="list-group-item-heading">File Operations</h5>
+                    <h5 class="list-group-item-heading">Google Drive Operations</h5>
                 </a>
                 <a class="list-group-item" href="#file-insert">Insert File</a>
                 <a class="list-group-item" href="#file-fetch">Fetch File</a>
                 <a class="list-group-item" href="#file-update">Update File</a>
+                <a class="list-group-item" href="#file-touch">Touch File</a>
                 <a class="list-group-item" href="#file-trash">Trash File</a>
+                <a class="list-group-item" href="#file-untrash">Un-Trash File</a>
+                <a class="list-group-item" href="#file-empty-trash">Empty Trash</a>
+            </div>
+            <div class="list-group top-level-anchors">
+                <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
+                    <h5 class="list-group-item-heading">Google+ Operations</h5>
+                </a>
+                <a class="list-group-item" href="#plus-get-person">Get User Info</a>
+                <a class="list-group-item" href="#plus-list-people">List People</a>
+                <a class="list-group-item" href="#plus-list-activity">List Activities</a>
+                <a class="list-group-item" href="#plus-list-moments">List Moments</a>
+                <a class="list-group-item" href="#plus-list-comments">List Comments</a>
             </div>
             <div class="list-group top-level-anchors">
                 <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
@@ -109,6 +123,10 @@
         <div class="col-md-8">
             <div class="panel panel-primary">
                 <div class="panel-body">
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-sm btn-success active btn-modeltype-selector" data-type="model-factory">Model Factory</button>
+                        <button class="btn btn-sm btn-modeltype-selector" data-type="class-hierarchy">Class Hierarchy</button>
+                    </div>
                     <h5>Javascript</h5>
                     <pre class="code-container"><--- Select one of the example operations to begin</pre>
 
@@ -127,6 +145,18 @@
                             <button type="submit" class="btn btn-success list-buckets-btn">List Buckets</button>
                             <div class="alert alert-warning alert-dismissable buckets-needs-project-id hide">
                                 <strong>Warning!</strong> Project ID is required!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-comments-inputs hide">
+                        <h5>Required Inputs</h5>
+                        <div class="well pre-scrollable">
+                            <input type="text" class="plus-activity-id" placeholder="Activity Id"/>
+                            <p class="help-block"><small>obtain activity ID from <a href="#plus-list-activity">activities listing</a></small></p>
+                            <button type="submit" class="btn btn-success list-plus-comments-btn">List Comments</button>
+                            <div class="alert alert-warning alert-dismissable list-comments-needs-activity-id hide">
+                                <strong>Warning!</strong> Activity ID is required!
                             </div>
                         </div>
                     </div>
