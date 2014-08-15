@@ -48,13 +48,10 @@ _.defer(function () {
 
                 // pretty printing target_fn
                 var strFn = "" + target_fn;
-                var parts = [];
-
-                var cleanStr = _.map(strFn.split("\n"), function(line) {
-                    return line.replace("       ", "");
+                var clnFn = _.map(strFn.split("\n"), function(line) {
+                    return line.replace("        ", "");
                 });
-                parts.push("" + cleanStr.join("\n"));
-                $(".code-container").html(parts.join("\n\n"));
+                $(".code-container").html(clnFn.join("\n"));
 
                 var auxparts = [];
                 if (strFn.indexOf("displayJson") >= 0) auxparts.push("var displayJson = " + displayJson + ";");
