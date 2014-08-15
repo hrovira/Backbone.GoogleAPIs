@@ -1,3 +1,26 @@
+var ChangeList = {};
+
+// View Support Functions
+var displayJson = function (m) {
+    var $el = $(".json-container").empty();
+    new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, m.toJSON());
+};
+
+var displayError = function (model, response) {
+    if (response) {
+        if (response.responseJSON) {
+            var $el = $(".error-container").empty();
+            var json = response.responseJSON;
+            new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, json);
+        } else {
+            var txt = response.responseText || "Unknown Error #1";
+            $(".error-container").html(txt);
+        }
+    } else {
+        $(".error-container").html("Unknown Error #2");
+    }
+};
+
 var DemoFns = {
     "model-factory": {
         "about": function () {
@@ -294,4 +317,3 @@ var DemoFns = {
         }
     }
 };
-
