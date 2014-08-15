@@ -1,41 +1,32 @@
-// authentication functions
-var signInUser = function (m) {
-    var email = m.get("email");
-    if (_.isEmpty(email)) {
-        $(".signed-out").show().removeClass("hide");
-        return;
-    }
-
-    $(".signed-in").show().removeClass("hide");
-    $(".signed-in-email").html(email);
-
-    var picture = m.get("picture");
-    if (!_.isEmpty(picture)) $(".signed-in-picture").attr("src", picture);
-};
-
-var fetchUserInfo = function (onStartup) {
-    $(".signed-out").hide();
-    $(".signed-in").hide();
-
-    var model = new Backbone.GoogleAPIs.UserInfo({});
-    if (!onStartup) {
-        model.on("error", displayError);
-        model.on("change", displayJson);
-    }
-    model.on("change", signInUser);
-    model.on("error", function () {
-        $(".signed-out").show().removeClass("hide");
-    });
-    model.fetch();
-};
-
 var signinCallback = function (json) {
     json = json || {};
 
     Backbone.GoogleAPIs.set("access_token", json["access_token"]);
     Backbone.GoogleAPIs.set("signed_in_user", json);
 
-    _.defer(fetchUserInfo, true);
+    _.defer(function() {
+        $(".signed-out").hide();
+        $(".signed-in").hide();
+
+        var m = new Backbone.GoogleAPIs.UserInfo({});
+        m.on("change", function() {
+            var email = m.get("email");
+            if (_.isEmpty(email)) {
+                $(".signed-out").show().removeClass("hide");
+                return;
+            }
+
+            $(".signed-in").show().removeClass("hide");
+            $(".signed-in-email").html(email);
+
+            var picture = m.get("picture");
+            if (!_.isEmpty(picture)) $(".signed-in-picture").attr("src", picture);
+        });
+        m.on("error", function () {
+            $(".signed-out").show().removeClass("hide");
+        });
+        m.fetch();
+    });
 
     try {
         Backbone.history.start();
@@ -44,48 +35,7 @@ var signinCallback = function (json) {
     }
 };
 
-var signOut = function () {
-    if (_.isEmpty(Backbone.GoogleAPIs.get("access_token"))) {
-        document.location = document.location.href.replace("#sign-out", "");
-        return;
-    }
-
-    var po = document.createElement("script");
-    po["type"] = "text/javascript";
-    po["async"] = true;
-    po["src"] = "https://accounts.google.com/o/oauth2/revoke?token=" + Backbone.GoogleAPIs.get("access_token");
-    po["onload"] = function () {
-        document.location = document.location.href.replace("#sign-out", "");
-    };
-
-    var s = document.getElementsByTagName("script")[0];
-    s["parentNode"].insertBefore(po, s);
-};
-
-// View Support Functions
-var displayJson = function (m) {
-    var $el = $(".json-container").empty();
-    new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, m.toJSON());
-};
-
-var displayError = function (model, response) {
-    if (response) {
-        if (response.responseJSON) {
-            var $el = $(".error-container").empty();
-            var json = response.responseJSON;
-            new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, json);
-        } else {
-            var txt = response.responseText || "Unknown Error #1";
-            $(".error-container").html(txt);
-        }
-    } else {
-        $(".error-container").html("Unknown Error #2");
-    }
-};
-
 // shared among File operations after insert
-var ChangeList = {};
-
 _.defer(function () {
     var App = Backbone.Router.extend({
         "__route": function (name, target_fn) {
@@ -98,17 +48,10 @@ _.defer(function () {
 
                 // pretty printing target_fn
                 var strFn = "" + target_fn;
-                var parts = [];
-
-                if (strFn.indexOf("localStorage") >= 0) {
-                    parts.push("// localStorage -> " + JSON.stringify(localStorage, undefined, 2));
-                }
-                var cleanStr = _.map(strFn.split("\n"), function(line) {
-                    return line.replace("       ", "");
+                var clnFn = _.map(strFn.split("\n"), function(line) {
+                    return line.replace("        ", "");
                 });
-                parts.push("" + cleanStr.join("\n"));
-//                parts.push("" + strFn);
-                $(".code-container").html(parts.join("\n\n"));
+                $(".code-container").html(clnFn.join("\n"));
 
                 var auxparts = [];
                 if (strFn.indexOf("displayJson") >= 0) auxparts.push("var displayJson = " + displayJson + ";");
@@ -150,20 +93,21 @@ _.defer(function () {
 
     // configures buttons for controlling model instantiation strategy
     var readyRoutes = function(e) {
+        var modelTypeSelector = localStorage.getItem("modeltype-selector") || "model-factory";
+
         $(".btn-modeltype-selector").removeClass("active btn-success");
         _.each($(".btn-modeltype-selector"), function(e) {
-            var oldType = localStorage.getItem("modeltype-selector");
             var newType = $(e).data("type");
-            if (newType === oldType) $(e).addClass("active btn-success");
+            if (newType === modelTypeSelector) $(e).addClass("active btn-success");
         });
 
-        var modelTypeSelector = localStorage.getItem("modeltype-selector") || "model-factory";
-        var demoFnRoutes = ["about", "list-apps", "list-folders", "list-changes", "list-buckets",
-            "file-insert","file-fetch","file-update","file-touch","file-trash","file-untrash","file-empty-trash",
+        var demoFnRoutes = ["about", "userinfo", "list-apps", "list-folders", "list-changes", "list-buckets",
+            "file-insert", "file-fetch", "file-update", "file-touch", "file-trash", "file-untrash", "file-empty-trash",
             "plus-get-person", "plus-list-people", "plus-list-activity", "plus-list-moments", "plus-list-comments"];
         _.each(demoFnRoutes, function(demoFnRoute) {
-            app.__route(demoFnRoute, DemoFns[modelTypeSelector][demoFnRoute]);
-        })
+            var fn = DemoFns[modelTypeSelector][demoFnRoute] || DemoFns["neither"][demoFnRoute];
+            if (_.isFunction(fn)) app.__route(demoFnRoute, fn);
+        });
     };
 
     $(".btn-modeltype-selector").on("click", function(e) {
@@ -172,6 +116,10 @@ _.defer(function () {
         _.defer(function() {
             Backbone.history.loadUrl(Backbone.history.fragment)
         });
+    });
+
+    $(".ls-vars-activate").on("click", function() {
+        $(".aux-vars-container").html(JSON.stringify(localStorage, undefined, 2));
     });
 
     // change to HTTPS
@@ -183,10 +131,23 @@ _.defer(function () {
         $(".goto-https-container").hide();
     }
 
-    app.__route("sign-out", signOut);
+    app.__route("sign-out", function() {
+        if (_.isEmpty(Backbone.GoogleAPIs.get("access_token"))) {
+            document.location = document.location.href.replace("#sign-out", "");
+            return;
+        }
 
-    // bootstraps EXAMPLE FUNCTIONS
-    app.__route("userinfo", fetchUserInfo);
+        var po = document.createElement("script");
+        po["type"] = "text/javascript";
+        po["async"] = true;
+        po["src"] = "https://accounts.google.com/o/oauth2/revoke?token=" + Backbone.GoogleAPIs.get("access_token");
+        po["onload"] = function () {
+            document.location = document.location.href.replace("#sign-out", "");
+        };
+
+        var s = document.getElementsByTagName("script")[0];
+        s["parentNode"].insertBefore(po, s);
+    });
 
     _.defer(readyRoutes);
 });

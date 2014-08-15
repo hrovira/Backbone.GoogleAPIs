@@ -1,3 +1,26 @@
+var ChangeList = {};
+
+// View Support Functions
+var displayJson = function (m) {
+    var $el = $(".json-container").empty();
+    new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, m.toJSON());
+};
+
+var displayError = function (model, response) {
+    if (response) {
+        if (response.responseJSON) {
+            var $el = $(".error-container").empty();
+            var json = response.responseJSON;
+            new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, json);
+        } else {
+            var txt = response.responseText || "Unknown Error #1";
+            $(".error-container").html(txt);
+        }
+    } else {
+        $(".error-container").html("Unknown Error #2");
+    }
+};
+
 var DemoFns = {
     "model-factory": {
         "about": function () {
@@ -220,12 +243,6 @@ var DemoFns = {
             model.on("error", displayError);
             model.untrash();
         },
-        "file-empty-trash": function () {
-            var trash = new Backbone.GoogleAPIs.Drive.Trash();
-            trash.on("change", displayJson);
-            trash.on("error", displayError);
-            trash.empty();
-        },
         "list-buckets": function () {
             var model = new Backbone.GoogleAPIs.Storage.Buckets();
             model.on("change", displayJson);
@@ -284,6 +301,19 @@ var DemoFns = {
                 _.defer(model.list);
             });
         }
+    },
+    "neither": {
+        "userinfo": function() {
+            var model = new Backbone.GoogleAPIs.UserInfo({});
+            model.on("error", displayError);
+            model.on("change", displayJson);
+            model.fetch();
+        },
+        "file-empty-trash": function () {
+            var trash = new Backbone.GoogleAPIs.Drive.Trash();
+            trash.on("change", displayJson);
+            trash.on("error", displayError);
+            trash.empty();
+        }
     }
 };
-
