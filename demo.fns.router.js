@@ -50,9 +50,6 @@ _.defer(function () {
                 var strFn = "" + target_fn;
                 var parts = [];
 
-                if (strFn.indexOf("localStorage") >= 0) {
-                    parts.push("// localStorage -> " + JSON.stringify(localStorage, undefined, 2));
-                }
                 var cleanStr = _.map(strFn.split("\n"), function(line) {
                     return line.replace("       ", "");
                 });
@@ -122,6 +119,10 @@ _.defer(function () {
         _.defer(function() {
             Backbone.history.loadUrl(Backbone.history.fragment)
         });
+    });
+
+    $(".ls-vars-activate").on("click", function() {
+        $(".aux-vars-container").html(JSON.stringify(localStorage, undefined, 2));
     });
 
     // change to HTTPS
