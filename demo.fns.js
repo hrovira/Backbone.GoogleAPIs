@@ -220,12 +220,6 @@ var DemoFns = {
             model.on("error", displayError);
             model.untrash();
         },
-        "file-empty-trash": function () {
-            var trash = new Backbone.GoogleAPIs.Drive.Trash();
-            trash.on("change", displayJson);
-            trash.on("error", displayError);
-            trash.empty();
-        },
         "list-buckets": function () {
             var model = new Backbone.GoogleAPIs.Storage.Buckets();
             model.on("change", displayJson);
@@ -283,6 +277,20 @@ var DemoFns = {
                 model.set("activityId", activityId);
                 _.defer(model.list);
             });
+        }
+    },
+    "neither": {
+        "userinfo": function() {
+            var model = new Backbone.GoogleAPIs.UserInfo({});
+            model.on("error", displayError);
+            model.on("change", displayJson);
+            model.fetch();
+        },
+        "file-empty-trash": function () {
+            var trash = new Backbone.GoogleAPIs.Drive.Trash();
+            trash.on("change", displayJson);
+            trash.on("error", displayError);
+            trash.empty();
         }
     }
 };

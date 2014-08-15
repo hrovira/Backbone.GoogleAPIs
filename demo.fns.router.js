@@ -158,12 +158,13 @@ _.defer(function () {
         });
 
         var modelTypeSelector = localStorage.getItem("modeltype-selector") || "model-factory";
-        var demoFnRoutes = ["about", "list-apps", "list-folders", "list-changes", "list-buckets",
-            "file-insert","file-fetch","file-update","file-touch","file-trash","file-untrash","file-empty-trash",
+        var demoFnRoutes = ["about", "userinfo", "list-apps", "list-folders", "list-changes", "list-buckets",
+            "file-insert", "file-fetch", "file-update", "file-touch", "file-trash", "file-untrash", "file-empty-trash",
             "plus-get-person", "plus-list-people", "plus-list-activity", "plus-list-moments", "plus-list-comments"];
         _.each(demoFnRoutes, function(demoFnRoute) {
-            app.__route(demoFnRoute, DemoFns[modelTypeSelector][demoFnRoute]);
-        })
+            var fn = DemoFns[modelTypeSelector][demoFnRoute] || DemoFns["neither"][demoFnRoute];
+            app.__route(demoFnRoute, fn);
+        });
     };
 
     $(".btn-modeltype-selector").on("click", function(e) {
@@ -184,9 +185,6 @@ _.defer(function () {
     }
 
     app.__route("sign-out", signOut);
-
-    // bootstraps EXAMPLE FUNCTIONS
-    app.__route("userinfo", fetchUserInfo);
 
     _.defer(readyRoutes);
 });
