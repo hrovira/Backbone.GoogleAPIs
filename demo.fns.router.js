@@ -35,7 +35,6 @@ var signinCallback = function (json) {
     }
 };
 
-// shared among File operations after insert
 _.defer(function () {
     var App = Backbone.Router.extend({
         "__route": function (name, target_fn) {
