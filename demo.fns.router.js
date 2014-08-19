@@ -126,9 +126,8 @@ _.defer(function () {
         var loca = document["location"];
         document["location"] = "https:" + (loca["host"] || loca["hostname"]) + loca["pathname"];
     });
-    if (document.location.protocol === "https:") {
-        $(".goto-https-container").hide();
-    }
+    if (document.location["protocol"] === "https:") $(".goto-https-container").hide();
+    if (document.location["hostname"] === "localhost") $(".goto-https-container").hide();
 
     app.__route("sign-out", function() {
         if (_.isEmpty(Backbone.GoogleAPIs.get("access_token"))) {
