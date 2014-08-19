@@ -7,6 +7,8 @@ var displayJson = function (m) {
 };
 
 var displayError = function (model, response) {
+    _.defer(displayJson, model);
+
     if (response) {
         if (response.responseJSON) {
             var $el = $(".error-container").empty();
