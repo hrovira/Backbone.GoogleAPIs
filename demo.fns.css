@@ -1,0 +1,25 @@
+.custom-jumbotron {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.custom-menus {
+    overflow-y: scroll;
+    max-height: 600px;
+}
+
+.signed-in-picture {
+    width: 50px;
+}
+
+.github-banner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
+}
+
+.json-container {
+    height: 400px;
+    border-bottom: 1px solid lightblue;
+}
