@@ -35,7 +35,6 @@ var signinCallback = function (json) {
     }
 };
 
-// shared among File operations after insert
 _.defer(function () {
     var App = Backbone.Router.extend({
         "__route": function (name, target_fn) {
@@ -55,6 +54,7 @@ _.defer(function () {
 
                 var auxparts = [];
                 if (strFn.indexOf("displayJson") >= 0) auxparts.push("var displayJson = " + displayJson + ";");
+                if (strFn.indexOf("displayPoll") >= 0) auxparts.push("var displayPoll = " + displayPoll + ";");
                 if (strFn.indexOf("displayError") >= 0) auxparts.push("var displayError = " + displayError + ";");
                 $(".aux-code-container").html(auxparts.join("\n\n"));
             };
@@ -127,9 +127,8 @@ _.defer(function () {
         var loca = document["location"];
         document["location"] = "https:" + (loca["host"] || loca["hostname"]) + loca["pathname"];
     });
-    if (document.location.protocol === "https:") {
-        $(".goto-https-container").hide();
-    }
+    if (document.location["protocol"] === "https:") $(".goto-https-container").hide();
+    if (document.location["hostname"] === "localhost") $(".goto-https-container").hide();
 
     app.__route("sign-out", function() {
         if (_.isEmpty(Backbone.GoogleAPIs.get("access_token"))) {
