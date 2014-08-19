@@ -184,6 +184,7 @@
 
             "__list_if_active": function() {
                 if (this.get("active")) {
+                    this.trigger("poll");
                     this.list();
                 }
             }

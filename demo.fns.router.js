@@ -54,6 +54,7 @@ _.defer(function () {
 
                 var auxparts = [];
                 if (strFn.indexOf("displayJson") >= 0) auxparts.push("var displayJson = " + displayJson + ";");
+                if (strFn.indexOf("displayPoll") >= 0) auxparts.push("var displayPoll = " + displayPoll + ";");
                 if (strFn.indexOf("displayError") >= 0) auxparts.push("var displayError = " + displayError + ";");
                 $(".aux-code-container").html(auxparts.join("\n\n"));
             };

@@ -26,3 +26,9 @@
 .error-container {
     border-top: 1px solid lightblue;
 }
+
+.poll-message {
+    position: absolute;
+    right: 0;
+    z-index: 354;
+}

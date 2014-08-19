@@ -6,6 +6,12 @@ var displayJson = function (m) {
     new jsoneditor.JSONEditor(_.first($el), { mode: "view" }, m.toJSON());
 };
 
+var displayPoll = function () {
+    var $el = $(".poll-message");
+    $el.show().removeClass("hide");
+    _.delay(_.bind($el.hide, $el), 1500);
+};
+
 var displayError = function (model, response) {
     _.defer(displayJson, model);
 
@@ -48,6 +54,7 @@ var DemoFns = {
 
             ChangeList = model;
             model.on("change", displayJson);
+            model.on("poll", displayPoll);
             model.on("error", displayError);
             model.poll();
         },
@@ -191,6 +198,7 @@ var DemoFns = {
             var model = new Backbone.GoogleAPIs.Drive.ChangeList();
             ChangeList = model;
             model.on("change", displayJson);
+            model.on("poll", displayPoll);
             model.on("error", displayError);
             model.poll();
         },
