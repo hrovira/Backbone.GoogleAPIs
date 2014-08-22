@@ -161,3 +161,13 @@ _.defer(function () {
         }
     });
 });
+
+// remember collapse settings
+_.defer(function() {
+    var remembered = localStorage.getItem("remember-open") || "c-example-ops";
+    $("#" + remembered).collapse("show");
+
+    $(".remember-open").on("shown.bs.collapse", function(e) {
+        localStorage.setItem("remember-open", e.target["id"]);
+    });
+});

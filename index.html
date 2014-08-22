@@ -83,44 +83,52 @@
 </div>
 <div class="container">
     <div class="row">
-        <div class="col-md-3 custom-menus">
-            <div class="list-group top-level-anchors">
-                <a href="#" class="list-group-item list-group-item-info" onclick="return false;">
-                    <h5 class="list-group-item-heading">Example Operations</h5>
+        <div id="c-parent" class="col-md-3 panel-group">
+            <div class="panel list-group top-level-anchors">
+                <a class="list-group-item list-group-item-info" data-toggle="collapse" data-parent="#c-parent" href="#c-example-ops">
+                    <h5 class="list-group-item-heading">Example Operations <i class="caret"></i></h5>
                 </a>
-                <a class="list-group-item" href="#about">About</a>
-                <a class="list-group-item" href="#list-apps">Apps</a>
-                <a class="list-group-item" href="#list-folders">List Folders</a>
-                <a class="list-group-item" href="#list-changes">Poll ChangeList</a>
-                <a class="list-group-item" href="#userinfo">Get User Info</a>
+                <div id="c-example-ops" class="panel-collapse collapse remember-open">
+                    <a class="list-group-item" href="#about">About</a>
+                    <a class="list-group-item" href="#list-apps">Apps</a>
+                    <a class="list-group-item" href="#list-folders">List Folders</a>
+                    <a class="list-group-item" href="#list-changes">Poll ChangeList</a>
+                    <a class="list-group-item" href="#userinfo">Get User Info</a>
+                </div>
             </div>
-            <div class="list-group top-level-anchors">
-                <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
-                    <h5 class="list-group-item-heading">Google Drive Operations</h5>
+            <div class="panel list-group top-level-anchors">
+                <a class="list-group-item list-group-item-info" data-toggle="collapse" data-parent="#c-parent" href="#c-gdrive-ops">
+                    <h5 class="list-group-item-heading">Google Drive Operations <i class="caret"></i></h5>
                 </a>
-                <a class="list-group-item" href="#file-insert">Insert File</a>
-                <a class="list-group-item" href="#file-fetch">Fetch File</a>
-                <a class="list-group-item" href="#file-update">Update File</a>
-                <a class="list-group-item" href="#file-touch">Touch File</a>
-                <a class="list-group-item" href="#file-trash">Trash File</a>
-                <a class="list-group-item" href="#file-untrash">Un-Trash File</a>
-                <a class="list-group-item" href="#file-empty-trash">Empty Trash</a>
+                <div id="c-gdrive-ops" class="panel-collapse collapse remember-open">
+                    <a class="list-group-item" href="#file-insert">Insert File</a>
+                    <a class="list-group-item" href="#file-fetch">Fetch File</a>
+                    <a class="list-group-item" href="#file-update">Update File</a>
+                    <a class="list-group-item" href="#file-touch">Touch File</a>
+                    <a class="list-group-item" href="#file-trash">Trash File</a>
+                    <a class="list-group-item" href="#file-untrash">Un-Trash File</a>
+                    <a class="list-group-item" href="#file-empty-trash">Empty Trash</a>
+                </div>
             </div>
-            <div class="list-group top-level-anchors">
-                <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
-                    <h5 class="list-group-item-heading">Google+ Operations</h5>
+            <div class="panel list-group top-level-anchors">
+                <a class="list-group-item list-group-item-info" data-toggle="collapse" data-parent="#c-parent" href="#c-gplus-ops">
+                    <h5 class="list-group-item-heading">Google+ Operations <i class="caret"></i></h5>
                 </a>
-                <a class="list-group-item" href="#plus-get-person">Get User Info</a>
-                <a class="list-group-item" href="#plus-list-people">List People</a>
-                <a class="list-group-item" href="#plus-list-activity">List Activities</a>
-                <a class="list-group-item" href="#plus-list-moments">List Moments</a>
-                <a class="list-group-item" href="#plus-list-comments">List Comments</a>
+                <div id="c-gplus-ops" class="panel-collapse collapse remember-open">
+                    <a class="list-group-item" href="#plus-get-person">Get User Info</a>
+                    <a class="list-group-item" href="#plus-list-people">List People</a>
+                    <a class="list-group-item" href="#plus-list-activity">List Activities</a>
+                    <a class="list-group-item" href="#plus-list-moments">List Moments</a>
+                    <a class="list-group-item" href="#plus-list-comments">List Comments</a>
+                </div>
             </div>
-            <div class="list-group top-level-anchors">
-                <a href="#" class="list-group-item list-group-item-info active" onclick="return false;">
-                    <h5 class="list-group-item-heading">Cloud Storage Operations</h5>
+            <div class="panel list-group top-level-anchors">
+                <a class="list-group-item list-group-item-info" data-toggle="collapse" data-parent="#c-parent" href="#c-cloudstore-ops">
+                    <h5 class="list-group-item-heading">Cloud Storage Operations <i class="caret"></i></h5>
                 </a>
-                <a class="list-group-item" href="#list-buckets">List Buckets</a>
+                <div id="c-cloudstore-ops" class="panel-collapse collapse remember-open">
+                    <a class="list-group-item" href="#list-buckets">List Buckets</a>
+                </div>
             </div>
         </div>
         <div class="col-md-8">

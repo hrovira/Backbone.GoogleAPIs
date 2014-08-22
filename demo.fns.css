@@ -3,11 +3,6 @@
     padding-bottom: 10px;
 }
 
-.custom-menus {
-    overflow-y: scroll;
-    max-height: 600px;
-}
-
 .signed-in-picture {
     width: 50px;
 }
