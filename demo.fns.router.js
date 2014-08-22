@@ -85,7 +85,7 @@ _.defer(function () {
     });
     // toggles active list item
     app.on("route", function (href) {
-        _.each($(".top-level-anchors").find("a.list-group-item"), function (item) {
+        _.each($(".list-group-item"), function (item) {
             $(item).removeClass("active");
             if (_.isEqual($(item).attr("href"), "#" + href)) $(item).addClass("active");
         });
@@ -159,5 +159,15 @@ _.defer(function () {
             if (script["src"].indexOf("apps-static") >= 0) return;
             $(".deps-container").append("<li>" + script["src"] + "</li>");
         }
+    });
+});
+
+// remember collapse settings
+_.defer(function() {
+    var remembered = localStorage.getItem("remember-open") || "c-example-ops";
+    $("#" + remembered).collapse("show");
+
+    $(".remember-open").on("shown.bs.collapse", function(e) {
+        localStorage.setItem("remember-open", e.target["id"]);
     });
 });
