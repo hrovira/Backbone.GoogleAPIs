@@ -85,7 +85,7 @@ _.defer(function () {
     });
     // toggles active list item
     app.on("route", function (href) {
-        _.each($(".top-level-anchors").find("a.list-group-item"), function (item) {
+        _.each($(".list-group-item"), function (item) {
             $(item).removeClass("active");
             if (_.isEqual($(item).attr("href"), "#" + href)) $(item).addClass("active");
         });
