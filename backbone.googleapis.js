@@ -172,7 +172,7 @@
 
                 this.set("active", true);
                 this.on("list", function() {
-                    _.delay(list_fn, options["delayInMillis"] || 5000);
+                    _.delay(list_fn, options["delayInMillis"] || 7500); // TODO : Control timer from UI
                 }, this);
                 _.defer(list_fn);
             },
