@@ -9,7 +9,7 @@ var signinCallback = function (json) {
         $(".signed-in").hide();
 
         var m = new Backbone.GoogleAPIs.UserInfo({});
-        m.on("change", function() {
+        m.once("change", function() {
             var email = m.get("email");
             if (_.isEmpty(email)) {
                 $(".signed-out").show().removeClass("hide");
@@ -22,7 +22,7 @@ var signinCallback = function (json) {
             var picture = m.get("picture");
             if (!_.isEmpty(picture)) $(".signed-in-picture").attr("src", picture);
         });
-        m.on("error", function () {
+        m.once("error", function () {
             $(".signed-out").show().removeClass("hide");
         });
         m.fetch();
