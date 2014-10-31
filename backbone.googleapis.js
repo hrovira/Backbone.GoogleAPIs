@@ -240,22 +240,41 @@
             "permissions": function() {},
             "revisions": function() {},
             "comments": function() {},
-            "contents": function(options) {
-              if (_.isEmpty(this.get("downloadUrl"))) return;
-              options = options || {};
+            "download": function (options) {
+                if (_.isEmpty(this.get("downloadUrl"))) return;
+                options = options || {};
 
-              $.ajax({
-                "method": "GET",
-                "url": this.get("downloadUrl"),
-                "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
-                "traditional": true,
-                "dataType": "json",
-                "contentType": "application/json",
-                "success": function (json) {
-                    this.trigger("contents", json);
-                },
-                "context": this
-              });
+                $.ajax(_.extend({
+                    "method": "GET",
+                    "url": this.get("downloadUrl"),
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                    "traditional": true,
+                    "dataType": "json",
+                    "contentType": "application/json",
+                    "success": function (json) {
+                        this.trigger("contents:download", json);
+                    },
+                    "context": this
+                }, options));
+            },
+
+            "upload": function (options, data) {
+                options = options || {};
+
+                var url = this.url().replace("/drive/v2/files", "/upload/drive/v2/files");
+                return $.ajax(_.extend({
+                    "method": "PUT",
+                    "url": url + "?uploadType=media",
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                    "contentType": "application/json",
+                    "dataType": "json",
+                    "data": JSON.stringify(data, undefined, 2),
+                    "success": function (d) {
+                        this.set(d);
+                        this.trigger("contents:upload", d);
+                    },
+                    "context": this
+                }, options));
             },
 
             "__simple_post": function (options, verb) {
