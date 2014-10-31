@@ -225,7 +225,25 @@
                     "context": this
                 });
             },
-            "update": function(options) {},
+            "update": function(options) {
+                options = options || {};
+
+                return $.ajax({
+                    "method": "PUT",
+                    "url": this.url() + "?uploadType=multipart",
+                    "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                    "contentType": "application/json",
+                    "dataType": "json",
+                    "data": JSON.stringify(this.toJSON(), undefined, 2),
+                    "success": function(json) {
+                        this.set(json);
+                    },
+                    "error": function(e) {
+                        this.trigger("error", this, e);
+                    },
+                    "context": this
+                }, options);
+            },
             "touch": function(options) {
                 this.__simple_post(options, "touch");
             },
