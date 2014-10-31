@@ -240,6 +240,23 @@
             "permissions": function() {},
             "revisions": function() {},
             "comments": function() {},
+            "contents": function(options) {
+              if (_.isEmpty(this.get("downloadUrl"))) return;
+              options = options || {};
+
+              $.ajax({
+                "method": "GET",
+                "url": this.get("downloadUrl"),
+                "headers": _.extend({}, options["headers"], OAuthHeaders(_iM_)),
+                "traditional": true,
+                "dataType": "json",
+                "contentType": "application/json",
+                "success": function (json) {
+                    this.trigger("contents", json);
+                },
+                "context": this
+              });
+            },
 
             "__simple_post": function (options, verb) {
                 if (!verb) return;
